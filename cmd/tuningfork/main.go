@@ -1,7 +1,7 @@
 package main
 
 /*
-   Create a raw soundfile (32b) of a given frequency, sample rate and pitch
+   Create a raw soundfile (32b) of a given frequency, sample rate and amplitude
    With an exponential decay applied to the signal
 */
 
