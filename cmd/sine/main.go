@@ -5,6 +5,7 @@ package main
 import (
 	"fmt"
 	"math"
+	"os"
 )
 
 const (
@@ -16,9 +17,9 @@ var (
 )
 
 func main() {
-	fmt.Printf("generating sine wave..\n")
+	fmt.Fprintf(os.Stderr, "generating sine wave..\n")
 	generate()
-	fmt.Printf("done")
+	fmt.Fprintf(os.Stderr, "done")
 }
 
 func generate() {
