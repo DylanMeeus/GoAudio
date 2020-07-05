@@ -1,7 +1,7 @@
 package main
 
 /*
-   Create a raw soundfile (16b) of a given frequency, sample rate and pitch
+   Create a raw soundfile (32b) of a given frequency, sample rate and pitch
    With an exponential decay applied to the signal
 */
 
@@ -25,7 +25,7 @@ const (
 	HZ
 	SR
 	AMP
-	OUT_FILE
+	OUTFILE
 	TOTAL_ARGS
 )
 
@@ -42,17 +42,17 @@ func generate(c config) {
 	var (
 		start float64 = 1.0
 		end   float64 = 1.0e-4
+		tau           = math.Pi * 2
 	)
 
-	// setup file
-	file := os.Args[1:][OUT_FILE]
+	// setup output file
+	file := os.Args[1:][OUTFILE]
 	f, err := os.Create(file)
 	if err != nil {
 		panic(err)
 	}
 	defer f.Close()
 
-	tau := math.Pi * 2
 	nsamples := c.Duration * c.SampleRate
 	angleincr := tau * float64(c.Hertz) / float64(nsamples)
 	decayfac := math.Pow(end/start, 1.0/float64(nsamples))
