@@ -11,34 +11,6 @@ func Test() {
 	fmt.Println("hello world")
 }
 
-// WaveHeader describes the header each WAVE file should start with
-type WaveHeader struct {
-	ChunkID   []byte // should be RIFF on little-endian or RIFX on big-endian systems..
-	ChunkSize int
-	Format    string // sanity-check, should be WAVE (//TODO: keep bytes??)
-}
-
-// WaveFmt describes the format of the sound-information in the data subchunks
-type WaveFmt struct {
-	Subchunk1ID    []byte // should contain "fmt"
-	Subchunk1Size  int    // 16 for PCM
-	AudioFormat    int    // PCM = 1 (Linear Quantization), if not 1, compression was used.
-	NumChannels    int    // Mono 1, Stereo = 2, ..
-	SampleRate     int    // 44100 for CD-Quality, etc..
-	ByteRate       int    // SampleRate * NumChannels * BitsPerSample / 8
-	BlockAlign     int    // NumChannels * BitsPerSample / 8 (number of bytes per sample)
-	BitsPerSample  int    // 8 bits = 8, 16 bits = 16, .. :-)
-	ExtraParamSize int    // if not PCM, can contain extra params
-	ExtraParams    []byte // the actual extra params.
-}
-
-// waveData contains the raw sound data
-type WaveData struct {
-	Subchunk2ID   []byte // Identifier of subchunk
-	Subchunk2Size int    // size of raw sound data
-	Data          []byte // raw sound data itself
-}
-
 // ParseFloatFrames for audio
 func ReadFloatFrames(f string) ([]float32, error) {
 	// open as read-only file
