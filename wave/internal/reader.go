@@ -11,10 +11,32 @@ func Test() {
 	fmt.Println("hello world")
 }
 
+// WaveHeader describes the header each WAVE file should start with
 type WaveHeader struct {
 	ChunkID   []byte // should be RIFF on little-endian or RIFX on big-endian systems..
 	ChunkSize int
-	Format    string // sanity-check, should be WAVE
+	Format    string // sanity-check, should be WAVE (//TODO: keep bytes??)
+}
+
+// WaveFmt describes the format of the sound-information in the data subchunks
+type WaveFmt struct {
+	Subchunk1ID    []byte // should contain "fmt"
+	Subchunk1Size  int    // 16 for PCM
+	AudioFormat    int    // PCM = 1 (Linear Quantization), if not 1, compression was used.
+	NumChannels    int    // Mono 1, Stereo = 2, ..
+	SampleRate     int    // 44100 for CD-Quality, etc..
+	ByteRate       int    // SampleRate * NumChannels * BitsPerSample / 8
+	BlockAlign     int    // NumChannels * BitsPerSample / 8 (number of bytes per sample)
+	BitsPerSample  int    // 8 bits = 8, 16 bits = 16, .. :-)
+	ExtraParamSize int    // if not PCM, can contain extra params
+	ExtraParams    []byte // the actual extra params.
+}
+
+// waveData contains the raw sound data
+type WaveData struct {
+	Subchunk2ID   []byte // Identifier of subchunk
+	Subchunk2Size int    // size of raw sound data
+	Data          []byte // raw sound data itself
 }
 
 // ParseFloatFrames for audio
@@ -33,10 +55,84 @@ func ReadFloatFrames(f string) ([]float32, error) {
 	data := make([]byte, info.Size())
 	bytesread, err := file.Read(data)
 	fmt.Printf("Bytes read: %v\n", bytesread)
-	readHeader(data)
+	hdr := readHeader(data)
+	fmt.Printf("%v\n", hdr)
+
+	wvfmt := readFmt(data)
+	fmt.Printf("%v\n", wvfmt)
 	return nil, nil
 }
 
+func bits16ToInt(b []byte) int {
+	if len(b) != 2 {
+		panic("Expected size 4!")
+	}
+	var payload uint16
+	buf := bytes.NewReader(b)
+	err := binary.Read(buf, binary.LittleEndian, &payload)
+	if err != nil {
+		// TODO: make safe
+		panic(err)
+	}
+	return int(payload) // easier to work with ints
+}
+
+// turn a 32-bit byte array into an int
+func bits32ToInt(b []byte) int {
+	if len(b) != 4 {
+		panic("Expected size 4!")
+	}
+	var payload uint32
+	buf := bytes.NewReader(b)
+	err := binary.Read(buf, binary.LittleEndian, &payload)
+	if err != nil {
+		// TODO: make safe
+		panic(err)
+	}
+	return int(payload) // easier to work with ints
+}
+
+// readFmt parses the FMT portion of the WAVE file
+// assumes the entire binary representation is passed!
+func readFmt(b []byte) WaveFmt {
+	wfmt := WaveFmt{}
+	subchunk1ID := b[12:16]
+	wfmt.Subchunk1ID = subchunk1ID
+
+	subchunksize := bits32ToInt(b[16:20])
+	wfmt.Subchunk1Size = subchunksize
+
+	format := bits16ToInt(b[20:22])
+	wfmt.AudioFormat = format
+
+	numChannels := bits16ToInt(b[22:24])
+	wfmt.NumChannels = numChannels
+
+	sr := bits32ToInt(b[24:28])
+	wfmt.SampleRate = sr
+
+	br := bits32ToInt(b[28:32])
+	wfmt.ByteRate = br
+
+	ba := bits16ToInt(b[32:34])
+	wfmt.BlockAlign = ba
+
+	bps := bits16ToInt(b[34:36])
+	wfmt.BitsPerSample = bps
+
+	// parse extra (optional) elements..
+
+	if subchunksize != 16 {
+		// only for compressed files (non-PCM)
+		extraSize := bits16ToInt(b[36:38])
+		wfmt.ExtraParamSize = extraSize
+		wfmt.ExtraParams = b[38 : 38+extraSize]
+	}
+
+	return wfmt
+}
+
+// TODO: make safe.
 func readHeader(b []byte) WaveHeader {
 	// the start of the bte slice..
 	hdr := WaveHeader{}
