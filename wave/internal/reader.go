@@ -58,8 +58,11 @@ func ReadFloatFrames(f string) ([]float32, error) {
 	hdr := readHeader(data)
 	fmt.Printf("%v\n", hdr)
 
-	wvfmt := readFmt(data)
-	fmt.Printf("%v\n", wvfmt)
+	wfmt := readFmt(data)
+	fmt.Printf("%v\n", wfmt)
+
+	wavdata := readData(data, wfmt)
+	fmt.Printf("%v\n", wavdata)
 	return nil, nil
 }
 
@@ -90,6 +93,21 @@ func bits32ToInt(b []byte) int {
 		panic(err)
 	}
 	return int(payload) // easier to work with ints
+}
+
+func readData(b []byte, wfmt WaveFmt) WaveData {
+	wd := WaveData{}
+
+	start := 36 + wfmt.ExtraParamSize
+	subchunk2ID := b[start : start+4]
+	wd.Subchunk2ID = subchunk2ID
+
+	subsize := bits32ToInt(b[start+8 : start+12])
+	wd.Subchunk2Size = subsize
+
+	wd.Data = b[start+12:]
+
+	return wd
 }
 
 // readFmt parses the FMT portion of the WAVE file
