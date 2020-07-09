@@ -49,6 +49,13 @@ type Sample float64
 
 */
 
+// Wave represents an entire .wav audio file
+type Wave struct {
+	WaveHeader
+	WaveFmt
+	WaveData
+}
+
 // WaveHeader describes the header each WAVE file should start with
 type WaveHeader struct {
 	ChunkID   []byte // should be RIFF on little-endian or RIFX on big-endian systems..

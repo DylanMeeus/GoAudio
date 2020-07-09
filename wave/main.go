@@ -13,6 +13,10 @@ func main() {
 		panic("please provide a file..")
 	}
 	filename := args[1]
-	internal.ReadFloatFrames(filename)
+	wave, err := internal.ReadWaveFile(filename)
+	if err != nil {
+		panic("Could not parse wave file")
+	}
+	fmt.Printf("Wave samples: %v\n", wave.Samples)
 	fmt.Println("done")
 }

@@ -33,11 +33,11 @@ func Test() {
 }
 
 // ParseFloatFrames for audio
-func ReadFloatFrames(f string) ([]float32, error) {
+func ReadWaveFile(f string) (Wave, error) {
 	// open as read-only file
 	file, err := os.Open(f)
 	if err != nil {
-		return nil, err
+		return Wave{}, err
 	}
 	defer file.Close()
 
@@ -59,9 +59,11 @@ func ReadFloatFrames(f string) ([]float32, error) {
 
 	fmt.Printf("%v\n", samples)
 
-	_ = hdr
-
-	return nil, nil
+	return Wave{
+		WaveHeader: hdr,
+		WaveFmt:    wfmt,
+		WaveData:   wavdata,
+	}, nil
 }
 
 func bits16ToInt(b []byte) int {
@@ -86,6 +88,10 @@ func bitsToFloat(b []byte) float64 {
 		bits = uint64(binary.LittleEndian.Uint16(b))
 	case 4:
 		bits = uint64(binary.LittleEndian.Uint32(b))
+	case 8:
+		bits = binary.LittleEndian.Uint64(b)
+	default:
+		panic("Can't parse to float..")
 	}
 	float := math.Float64frombits(bits)
 	return float
@@ -123,9 +129,8 @@ func readData(b []byte, wfmt WaveFmt) WaveData {
 }
 
 // TODO: deal with interleaving..
+// Should we do n-channel separation at this point?
 func parseRawData(wfmt WaveFmt, rawdata []byte) []Sample {
-	// rawdata should start with 0x64 0x61 0x74 0x61 ("d a t a")
-
 	bytesSampleSize := wfmt.BitsPerSample / 8
 	// TODO: sanity-check that this is a power of 2? I think only those sample sizes are
 	// possible
