@@ -2,6 +2,8 @@ package internal
 
 // representation of the wave file, used by reader.go and writer.go
 
+type Sample float64
+
 /*
 
 ╔════════╤════════════════╤══════╤═══════════════════════════════════════════════════╗
@@ -72,5 +74,6 @@ type WaveFmt struct {
 type WaveData struct {
 	Subchunk2ID   []byte // Identifier of subchunk
 	Subchunk2Size int    // size of raw sound data
-	Data          []byte // raw sound data itself
+	RawData       []byte // raw sound data itself
+	Samples       []Sample
 }

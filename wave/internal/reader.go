@@ -4,7 +4,28 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"math"
 	"os"
+)
+
+// type aliases for conversion functions
+type (
+	bytesToIntF   func([]byte) int
+	bytesToFloatF func([]byte) float64
+)
+
+var (
+	// figure out which 'to int' function to use..
+	byteSizeToIntFunc = map[int]bytesToIntF{
+		16: bits16ToInt,
+		32: bits32ToInt,
+	}
+
+	byteSizeToFloatFunc = map[int]bytesToFloatF{
+		16: bitsToFloat,
+		32: bitsToFloat,
+		64: bitsToFloat,
+	}
 )
 
 func Test() {
@@ -22,19 +43,24 @@ func ReadFloatFrames(f string) ([]float32, error) {
 
 	// determine size?
 	info, _ := file.Stat()
-	fmt.Printf("size: %v\n", info.Size)
+	fmt.Printf("size: %v\n", info.Size())
 
 	data := make([]byte, info.Size())
 	bytesread, err := file.Read(data)
 	fmt.Printf("Bytes read: %v\n", bytesread)
 	hdr := readHeader(data)
-	fmt.Printf("%v\n", hdr)
 
 	wfmt := readFmt(data)
-	fmt.Printf("%v\n", wfmt)
 
 	wavdata := readData(data, wfmt)
-	fmt.Printf("%v\n", wavdata)
+
+	samples := parseRawData(wfmt, wavdata.RawData)
+	wavdata.Samples = samples
+
+	fmt.Printf("%v\n", samples)
+
+	_ = hdr
+
 	return nil, nil
 }
 
@@ -50,6 +76,19 @@ func bits16ToInt(b []byte) int {
 		panic(err)
 	}
 	return int(payload) // easier to work with ints
+}
+
+// for our wave format we expect double precision floats
+func bitsToFloat(b []byte) float64 {
+	var bits uint64
+	switch len(b) {
+	case 2:
+		bits = uint64(binary.LittleEndian.Uint16(b))
+	case 4:
+		bits = uint64(binary.LittleEndian.Uint32(b))
+	}
+	float := math.Float64frombits(bits)
+	return float
 }
 
 // turn a 32-bit byte array into an int
@@ -74,12 +113,32 @@ func readData(b []byte, wfmt WaveFmt) WaveData {
 	subchunk2ID := b[start : start+4]
 	wd.Subchunk2ID = subchunk2ID
 
-	subsize := bits32ToInt(b[start+8 : start+12])
+	subsize := bits32ToInt(b[start+4 : start+8])
 	wd.Subchunk2Size = subsize
+	fmt.Printf("subchunk size: %v\n", wd.Subchunk2Size)
 
-	wd.Data = b[start+12:]
+	wd.RawData = b[start+8:]
 
 	return wd
+}
+
+// TODO: deal with interleaving..
+func parseRawData(wfmt WaveFmt, rawdata []byte) []Sample {
+	// rawdata should start with 0x64 0x61 0x74 0x61 ("d a t a")
+
+	bytesSampleSize := wfmt.BitsPerSample / 8
+	// TODO: sanity-check that this is a power of 2? I think only those sample sizes are
+	// possible
+
+	samples := make([]Sample, len(rawdata)/bytesSampleSize)
+	// read the chunks
+	for i := 0; i < len(rawdata); i += bytesSampleSize {
+		rawSample := rawdata[i : i+bytesSampleSize]
+		sample := bitsToFloat(rawSample)
+		samples = append(samples, Sample(sample))
+	}
+
+	return samples
 }
 
 // readFmt parses the FMT portion of the WAVE file
