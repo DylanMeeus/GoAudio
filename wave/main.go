@@ -17,6 +17,12 @@ func main() {
 	if err != nil {
 		panic("Could not parse wave file")
 	}
-	fmt.Printf("Wave samples: %v\n", wave.Samples)
+	fmt.Printf("Read %v samples\n", len(wave.Samples))
+
+	// now try to write this file
+	if err := internal.WriteSamples(wave.Samples, wave.WaveFmt, ""); err != nil {
+		panic(err)
+	}
+
 	fmt.Println("done")
 }

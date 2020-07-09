@@ -28,10 +28,6 @@ var (
 	}
 )
 
-func Test() {
-	fmt.Println("hello world")
-}
-
 // ParseFloatFrames for audio
 func ReadWaveFile(f string) (Wave, error) {
 	// open as read-only file
@@ -56,8 +52,6 @@ func ReadWaveFile(f string) (Wave, error) {
 
 	samples := parseRawData(wfmt, wavdata.RawData)
 	wavdata.Samples = samples
-
-	fmt.Printf("%v\n", samples)
 
 	return Wave{
 		WaveHeader: hdr,
@@ -135,7 +129,7 @@ func parseRawData(wfmt WaveFmt, rawdata []byte) []Sample {
 	// TODO: sanity-check that this is a power of 2? I think only those sample sizes are
 	// possible
 
-	samples := make([]Sample, len(rawdata)/bytesSampleSize)
+	samples := []Sample{}
 	// read the chunks
 	for i := 0; i < len(rawdata); i += bytesSampleSize {
 		rawSample := rawdata[i : i+bytesSampleSize]
