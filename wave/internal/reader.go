@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"io/ioutil"
 	"math"
 	"os"
 )
@@ -41,9 +42,11 @@ func ReadWaveFile(f string) (Wave, error) {
 	info, _ := file.Stat()
 	fmt.Printf("size: %v\n", info.Size())
 
-	data := make([]byte, info.Size())
-	bytesread, err := file.Read(data)
-	fmt.Printf("Bytes read: %v\n", bytesread)
+	data, err := ioutil.ReadFile(f)
+	if err != nil {
+		return Wave{}, err
+	}
+	fmt.Printf("Bytes read: %v\n", len(data))
 	hdr := readHeader(data)
 
 	wfmt := readFmt(data)
