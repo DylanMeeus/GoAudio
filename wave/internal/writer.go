@@ -10,6 +10,7 @@ import (
 var (
 	ChunkID          = []byte{0x52, 0x49, 0x46, 0x46}
 	BigEndianChunkID = []byte{0x52, 0x49, 0x46, 0x58}
+	Format           = []byte{0x66, 0x6d, 0x74, 0x20}
 	Subchunk2ID      = []byte{0x64, 0x61, 0x74, 0x61}
 )
 
@@ -18,21 +19,28 @@ var (
 // WaveData and WaveHeader are inferred from the samples however..
 func WriteSamples(samples []Sample, wfmt WaveFmt, file string) error {
 
-	// construct this in reverse (Data -> Fmt -> Header0
+	// construct this in reverse (Data -> Fmt -> Header)
 	// as Fmt needs info of Data, and Hdr needs to know entire length of file
 
 	// write chunkSize
 	bits := []byte{}
-	//hdr := sampleToHeader(samples, wfmt)
-	//	bits = append(bits, hdr...)
 
-	data := samplesToData(samples, wfmt)
-	bits = append(bits, data...)
+	wfb := fmtToBytes(wfmt)
+	data, databits := samplesToData(samples, wfmt)
+	hdr := createHeader(data)
 
-	// 1. Write header
-	// 2. Write FMT
-	// 3. Write Data
+	bits = append(bits, hdr...)
+	bits = append(bits, wfb...)
+	bits = append(bits, databits...)
+
 	return ioutil.WriteFile("out.wav", bits, 0644)
+}
+
+func int16ToBytes(i int) []byte {
+	b := make([]byte, 2)
+	in := uint16(i)
+	binary.LittleEndian.PutUint16(b, in)
+	return b
 }
 
 func int32ToBytes(i int) []byte {
@@ -42,7 +50,7 @@ func int32ToBytes(i int) []byte {
 	return b
 }
 
-func samplesToData(samples []Sample, wfmt WaveFmt) []byte {
+func samplesToData(samples []Sample, wfmt WaveFmt) (WaveData, []byte) {
 	b := []byte{}
 	raw := samplesToRawData(samples, wfmt)
 
@@ -55,7 +63,14 @@ func samplesToData(samples []Sample, wfmt WaveFmt) []byte {
 	b = append(b, Subchunk2ID...)
 	b = append(b, subBytes...)
 	b = append(b, raw...)
-	return b
+
+	wd := WaveData{
+		Subchunk2ID:   Subchunk2ID,
+		Subchunk2Size: subchunksize,
+		RawData:       raw,
+		Samples:       samples,
+	}
+	return wd, b
 }
 
 func floatToBytes(f float64, nBytes int) []byte {
@@ -82,11 +97,40 @@ func samplesToRawData(samples []Sample, props WaveFmt) []byte {
 	return raw
 }
 
+func fmtToBytes(wfmt WaveFmt) []byte {
+	b := []byte{}
+
+	subchunksize := int32ToBytes(wfmt.Subchunk1Size)
+	audioformat := int16ToBytes(wfmt.AudioFormat)
+	numchans := int16ToBytes(wfmt.NumChannels)
+	sr := int32ToBytes(wfmt.SampleRate)
+	br := int32ToBytes(wfmt.ByteRate)
+	blockalign := int16ToBytes(wfmt.BlockAlign)
+	bitsPerSample := int16ToBytes(wfmt.BitsPerSample)
+
+	b = append(b, wfmt.Subchunk1ID...)
+	b = append(b, subchunksize...)
+	b = append(b, audioformat...)
+	b = append(b, numchans...)
+	b = append(b, sr...)
+	b = append(b, br...)
+	b = append(b, blockalign...)
+	b = append(b, bitsPerSample...)
+
+	return b
+}
+
 // turn the sample to a valid header
-func sampleToHeader(samples []Sample, props WaveFmt) []byte {
+func createHeader(wd WaveData) []byte {
 	// write chunkID
 	bits := []byte{}
+
+	chunksize := 36 + wd.Subchunk2Size
+	cb := int32ToBytes(chunksize)
+
 	bits = append(bits, ChunkID...) // in theory switch on endianness..
+	bits = append(bits, cb...)
+	bits = append(cb, Format...)
 
 	return bits
 }
