@@ -8,10 +8,11 @@ import (
 )
 
 var (
-	ChunkID          = []byte{0x52, 0x49, 0x46, 0x46}
-	BigEndianChunkID = []byte{0x52, 0x49, 0x46, 0x58}
-	Format           = []byte{0x66, 0x6d, 0x74, 0x20}
-	Subchunk2ID      = []byte{0x64, 0x61, 0x74, 0x61}
+	ChunkID          = []byte{0x52, 0x49, 0x46, 0x46} // RIFF
+	BigEndianChunkID = []byte{0x52, 0x49, 0x46, 0x58} // RIFX
+	WaveID           = []byte{0x57, 0x41, 0x56, 0x45} // WAVE
+	Format           = []byte{0x66, 0x6d, 0x74, 0x20} // FMT
+	Subchunk2ID      = []byte{0x64, 0x61, 0x74, 0x61} // DATA
 )
 
 // WriteSamples writes the slice to disk as a .wav file
@@ -130,7 +131,7 @@ func createHeader(wd WaveData) []byte {
 
 	bits = append(bits, ChunkID...) // in theory switch on endianness..
 	bits = append(bits, cb...)
-	bits = append(cb, Format...)
+	bits = append(bits, WaveID...)
 
 	return bits
 }
