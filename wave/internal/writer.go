@@ -34,7 +34,7 @@ func WriteSamples(samples []Sample, wfmt WaveFmt, file string) error {
 	bits = append(bits, wfb...)
 	bits = append(bits, databits...)
 
-	return ioutil.WriteFile("out.wav", bits, 0644)
+	return ioutil.WriteFile(file, bits, 0644)
 }
 
 func int16ToBytes(i int) []byte {

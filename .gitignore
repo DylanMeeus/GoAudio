@@ -19,3 +19,9 @@ tags
 # Persistent undo
 [._]*.un~
 
+
+# Audio editing files
+*.wav
+
+# debugging files
+*.hex

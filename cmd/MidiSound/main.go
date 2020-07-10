@@ -1,8 +1,7 @@
 package main
 
 /*
-   Create a raw soundfile (32b) of a given frequency, sample rate and amplitude
-   With an exponential decay applied to the signal
+   Play sound based on midi notes..
 */
 
 import (
@@ -15,19 +14,21 @@ import (
 
 type config struct {
 	Duration   int
-	Hertz      int
+	MidiNote   int
 	SampleRate int
 	Amplitude  float64
 }
 
 const (
 	DURATION = iota
-	HZ
+	MIDI
 	SR
 	AMP
 	OUTFILE
 	TOTAL_ARGS
 )
+
+const concertA = float64(440)
 
 // usage: go run main.go [dur] [hz] [sr] [amp]
 // e.g: go run main.go 2 440 44100 1
@@ -35,6 +36,12 @@ func main() {
 	fmt.Printf("Generating..\n")
 	generate(parseInput())
 	fmt.Printf("Done\n")
+}
+
+// midi2hertz turns a midi note into a frequency
+func midi2hertz(n int) float64 {
+	middleC := concertA // oft used default for middleC
+	return math.Pow(2, (float64(n)-69)/12) * middleC
 }
 
 // generate the sample based on the config
@@ -45,6 +52,9 @@ func generate(c config) {
 		tau           = math.Pi * 2
 	)
 
+	hertz := midi2hertz(c.MidiNote)
+	fmt.Printf("don't hertz me: %v\n", hertz)
+
 	// setup output file
 	file := os.Args[1:][OUTFILE]
 	f, err := os.Create(file)
@@ -54,7 +64,7 @@ func generate(c config) {
 	defer f.Close()
 
 	nsamples := c.Duration * c.SampleRate
-	angleincr := tau * float64(c.Hertz) / float64(nsamples)
+	angleincr := tau * hertz / float64(nsamples)
 	decayfac := math.Pow(end/start, 1.0/float64(nsamples))
 
 	for i := 0; i < nsamples; i++ {
@@ -80,12 +90,12 @@ func parseInput() config {
 		return config{}
 	}
 	dur, _ := strconv.Atoi(args[DURATION])
-	hz, _ := strconv.Atoi(args[HZ])
+	midi, _ := strconv.Atoi(args[MIDI])
 	sr, _ := strconv.Atoi(args[SR])
 	amp, _ := strconv.ParseFloat(args[AMP], 64)
 	return config{
 		Duration:   dur,
-		Hertz:      hz,
+		MidiNote:   midi,
 		SampleRate: sr,
 		Amplitude:  amp,
 	}
