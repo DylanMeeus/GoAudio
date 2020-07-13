@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/DylanMeeus/Audio/wave/internal"
+	"github.com/DylanMeeus/GoAudio/wave/internal"
 )
 
 var (

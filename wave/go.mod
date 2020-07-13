@@ -1,3 +1,3 @@
-module github.com/DylanMeeus/Audio/wave
+module github.com/DylanMeeus/GoAudio/wave
 
 go 1.14

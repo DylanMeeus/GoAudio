@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/DylanMeeus/Audio/wave/internal"
+	"github.com/DylanMeeus/GoAudio/wave/internal"
 	"os"
 )
 
