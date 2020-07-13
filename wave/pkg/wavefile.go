@@ -1,4 +1,4 @@
-package internal
+package pkg
 
 // representation of the wave file, used by reader.go and writer.go
 

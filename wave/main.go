@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/DylanMeeus/GoAudio/wave/internal"
+	"github.com/DylanMeeus/GoAudio/wave/pkg"
 	"os"
 )
 
@@ -13,14 +13,14 @@ func main() {
 		panic("please provide a file..")
 	}
 	filename := args[1]
-	wave, err := internal.ReadWaveFile(filename)
+	wave, err := pkg.ReadWaveFile(filename)
 	if err != nil {
 		panic("Could not parse wave file")
 	}
 	fmt.Printf("Read %v samples\n", len(wave.Samples))
 
 	// now try to write this file
-	if err := internal.WriteSamples(wave.Samples, wave.WaveFmt, ""); err != nil {
+	if err := pkg.WriteSamples(wave.Samples, wave.WaveFmt, ""); err != nil {
 		panic(err)
 	}
 
