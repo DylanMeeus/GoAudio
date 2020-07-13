@@ -1,4 +1,4 @@
-package pkg
+package wave
 
 import (
 	"encoding/binary"
