@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/DylanMeeus/Audio/wave/internal"
+	pkg "github.com/DylanMeeus/Audio/wave"
 )
 
 var (
@@ -18,7 +18,7 @@ func main() {
 	infile := *input
 	outfile := *output
 	scale := *amp
-	wave, err := internal.ReadWaveFile(infile)
+	wave, err := pkg.ReadWaveFile(infile)
 	if err != nil {
 		panic("Could not parse wave file")
 	}
@@ -27,16 +27,16 @@ func main() {
 
 	// now try to write this file
 	scaledSamples := changeAmplitude(wave.Samples, scale)
-	if err := internal.WriteSamples(scaledSamples, wave.WaveFmt, outfile); err != nil {
+	if err := pkg.WriteSamples(scaledSamples, wave.WaveFmt, outfile); err != nil {
 		panic(err)
 	}
 
 	fmt.Println("done")
 }
 
-func changeAmplitude(samples []internal.Sample, scalefactor float64) []internal.Sample {
+func changeAmplitude(samples []pkg.Sample, scalefactor float64) []pkg.Sample {
 	for i, s := range samples {
-		samples[i] = internal.Sample(float64(s) * scalefactor)
+		samples[i] = pkg.Sample(float64(s) * scalefactor)
 	}
 	return samples
 }
