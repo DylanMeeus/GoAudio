@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/DylanMeeus/GoAudio/wave/internal"
+	"github.com/DylanMeeus/GoAudio/wave/pkg"
 )
 
 var (
@@ -30,7 +30,7 @@ func main() {
 	infile := *input
 	outfile := *output
 	panfac := *pan
-	wave, err := internal.ReadWaveFile(infile)
+	wave, err := pkg.ReadWaveFile(infile)
 	if err != nil {
 		panic("Could not parse wave file")
 	}
@@ -42,18 +42,18 @@ func main() {
 	fmt.Printf("panfac: %v\npanpos: %v\n", panfac, pos)
 	scaledSamples := applyPan(wave.Samples, calculatePosition(panfac))
 	wave.NumChannels = 2 // samples are now stereo, so we need dual channels
-	if err := internal.WriteSamples(scaledSamples, wave.WaveFmt, outfile); err != nil {
+	if err := pkg.WriteSamples(scaledSamples, wave.WaveFmt, outfile); err != nil {
 		panic(err)
 	}
 
 	fmt.Println("done")
 }
 
-func applyPan(samples []internal.Sample, p panposition) []internal.Sample {
-	out := []internal.Sample{}
+func applyPan(samples []pkg.Sample, p panposition) []pkg.Sample {
+	out := []pkg.Sample{}
 	for _, s := range samples {
-		out = append(out, internal.Sample(float64(s)*p.left))
-		out = append(out, internal.Sample(float64(s)*p.right))
+		out = append(out, pkg.Sample(float64(s)*p.left))
+		out = append(out, pkg.Sample(float64(s)*p.right))
 	}
 	return out
 }
