@@ -57,7 +57,11 @@ func ParseBreakpoints(in io.Reader) ([]Breakpoint, error) {
 }
 
 // ValueAt returns the expected value at a given time (expressed as float64) by linear interpolation
-func ValueAt(bs []Breakpoint, npoints int, time float64) float64 {
+func ValueAt(bs []Breakpoint, time float64) float64 {
+	if len(bs) == 0 {
+		return 0
+	}
+	npoints := len(bs)
 
 	// first we need to find a span containing our timeslot
 	startSpan := 0 // start of span
