@@ -3,7 +3,7 @@ package wave
 // utility functions for dealing with wave files.
 
 // BatchSamples batches the samples per requested timespan expressed in seconds
-func BatchSamples(data Wave, seconds uint) [][]Sample {
+func BatchSamples(data Wave, seconds float64) [][]Sample {
 	if seconds == 0 {
 		return [][]Sample{
 			data.Samples,
@@ -12,7 +12,7 @@ func BatchSamples(data Wave, seconds uint) [][]Sample {
 
 	samples := data.Samples
 
-	sampleSize := data.SampleRate * int(seconds)
+	sampleSize := int(float64(data.SampleRate) * float64(seconds))
 
 	batches := len(samples) / sampleSize
 	if len(samples)%sampleSize != 0 {

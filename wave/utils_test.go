@@ -7,7 +7,7 @@ import (
 var (
 	testBatchSamples = []struct {
 		wave     Wave
-		timespan uint
+		timespan float64
 		out      [][]Sample
 	}{
 		{
