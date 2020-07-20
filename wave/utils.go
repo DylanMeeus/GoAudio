@@ -1,14 +1,10 @@
 package wave
 
-import (
-	"time"
-)
-
 // utility functions for dealing with wave files.
 
-// BatchSamples batches the samples per requested timespan (timespan in seconds)
-func BatchSamples(data Wave, timespan time.Duration) [][]Sample {
-	if timespan == 0 {
+// BatchSamples batches the samples per requested timespan expressed in seconds
+func BatchSamples(data Wave, seconds uint) [][]Sample {
+	if seconds == 0 {
 		return [][]Sample{
 			data.Samples,
 		}
@@ -16,10 +12,14 @@ func BatchSamples(data Wave, timespan time.Duration) [][]Sample {
 
 	samples := data.Samples
 
-	sampleSize := data.SampleRate * int(timespan)
-	// now we need to grab these slices..
+	sampleSize := data.SampleRate * int(seconds)
 
-	batched := make([][]Sample, len(samples)/sampleSize)
+	batches := len(samples) / sampleSize
+	if len(samples)%sampleSize != 0 {
+		batches++
+	}
+
+	batched := make([][]Sample, batches) // this should be round up..
 	for i := 0; i < len(batched); i++ {
 		start := i * sampleSize
 		if start > len(samples) {

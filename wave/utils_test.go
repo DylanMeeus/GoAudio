@@ -2,13 +2,12 @@ package wave
 
 import (
 	"testing"
-	"time"
 )
 
 var (
 	testBatchSamples = []struct {
 		wave     Wave
-		timespan time.Duration
+		timespan uint
 		out      [][]Sample
 	}{
 		{
@@ -27,6 +26,18 @@ var (
 			},
 			2,
 			[][]Sample{makeSampleSlice(1, 2, 3, 4), makeSampleSlice(5, 6, 7, 8)},
+		},
+		{
+			Wave{
+				WaveFmt: WaveFmt{
+					SampleRate: 2, // 2 seconds per sample
+				},
+				WaveData: WaveData{
+					Samples: makeSampleSlice(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
+				},
+			},
+			2,
+			[][]Sample{makeSampleSlice(1, 2, 3, 4), makeSampleSlice(5, 6, 7, 8), makeSampleSlice(9, 10)},
 		},
 	}
 )
