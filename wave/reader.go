@@ -27,6 +27,14 @@ var (
 		32: bitsToFloat,
 		64: bitsToFloat,
 	}
+
+	// max value depending on the bit size
+	maxValues = map[int]int{
+		8:  math.MaxInt8,
+		16: math.MaxInt16,
+		32: math.MaxInt32,
+		64: math.MaxInt64,
+	}
 )
 
 // ParseFloatFrames for audio
@@ -63,20 +71,6 @@ func ReadWaveFile(f string) (Wave, error) {
 	}, nil
 }
 
-func bits16ToInt(b []byte) int {
-	if len(b) != 2 {
-		panic("Expected size 4!")
-	}
-	var payload uint16
-	buf := bytes.NewReader(b)
-	err := binary.Read(buf, binary.LittleEndian, &payload)
-	if err != nil {
-		// TODO: make safe
-		panic(err)
-	}
-	return int(payload) // easier to work with ints
-}
-
 // for our wave format we expect double precision floats
 func bitsToFloat(b []byte) float64 {
 	var bits uint64
@@ -94,12 +88,26 @@ func bitsToFloat(b []byte) float64 {
 	return float
 }
 
+func bits16ToInt(b []byte) int {
+	if len(b) != 2 {
+		panic("Expected size 4!")
+	}
+	var payload int16
+	buf := bytes.NewReader(b)
+	err := binary.Read(buf, binary.LittleEndian, &payload)
+	if err != nil {
+		// TODO: make safe
+		panic(err)
+	}
+	return int(payload) // easier to work with ints
+}
+
 // turn a 32-bit byte array into an int
 func bits32ToInt(b []byte) int {
 	if len(b) != 4 {
 		panic("Expected size 4!")
 	}
-	var payload uint32
+	var payload int32
 	buf := bytes.NewReader(b)
 	err := binary.Read(buf, binary.LittleEndian, &payload)
 	if err != nil {
@@ -125,22 +133,30 @@ func readData(b []byte, wfmt WaveFmt) WaveData {
 	return wd
 }
 
-// TODO: deal with interleaving..
 // Should we do n-channel separation at this point?
 func parseRawData(wfmt WaveFmt, rawdata []byte) []Sample {
 	bytesSampleSize := wfmt.BitsPerSample / 8
 	// TODO: sanity-check that this is a power of 2? I think only those sample sizes are
 	// possible
 
+	// TODO: READ AS INT??????
+
 	samples := []Sample{}
 	// read the chunks
 	for i := 0; i < len(rawdata); i += bytesSampleSize {
-		rawSample := rawdata[i : i+bytesSampleSize]
-		sample := bitsToFloat(rawSample)
-		samples = append(samples, Sample(sample))
+		rawFrame := rawdata[i : i+bytesSampleSize]
+		unscaledFrame := byteSizeToIntFunc[wfmt.BitsPerSample](rawFrame)
+		scaled := scaleFrame(unscaledFrame, wfmt.BitsPerSample)
+		samples = append(samples, scaled)
 	}
 
 	return samples
+}
+
+func scaleFrame(unscaled, bits int) Sample {
+	maxV := maxValues[bits]
+	return Sample(float64(unscaled) / float64(maxV))
+
 }
 
 // readFmt parses the FMT portion of the WAVE file
