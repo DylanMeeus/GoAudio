@@ -8,7 +8,7 @@ var (
 	scaleFrameTests = []struct {
 		input int
 		bits  int
-		out   Sample
+		out   Frame
 	}{
 		{
 			0,

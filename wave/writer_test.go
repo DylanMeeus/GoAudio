@@ -6,27 +6,27 @@ import (
 
 var (
 	rescaleFrameTests = []struct {
-		input Sample
+		input Frame
 		bits  int
 		out   int
 	}{
 		{
-			Sample(1),
+			Frame(1),
 			8,
 			127,
 		},
 		{
-			Sample(-1),
+			Frame(-1),
 			8,
 			-127,
 		},
 		{
-			Sample(1),
+			Frame(1),
 			16,
 			32_767,
 		},
 		{
-			Sample(-1),
+			Frame(-1),
 			16,
 			-32_767,
 		},

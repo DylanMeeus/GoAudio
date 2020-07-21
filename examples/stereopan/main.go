@@ -35,25 +35,25 @@ func main() {
 		panic("Could not parse wave file")
 	}
 
-	fmt.Printf("Read %v samples\n", len(wave.Samples))
+	fmt.Printf("Read %v samples\n", len(wave.Frames))
 
 	// now try to write this file
 	pos := calculatePosition(panfac)
 	fmt.Printf("panfac: %v\npanpos: %v\n", panfac, pos)
-	scaledSamples := applyPan(wave.Samples, calculatePosition(panfac))
+	scaledSamples := applyPan(wave.Frames, calculatePosition(panfac))
 	wave.NumChannels = 2 // samples are now stereo, so we need dual channels
-	if err := pkg.WriteSamples(scaledSamples, wave.WaveFmt, outfile); err != nil {
+	if err := pkg.WriteFrames(scaledSamples, wave.WaveFmt, outfile); err != nil {
 		panic(err)
 	}
 
 	fmt.Println("done")
 }
 
-func applyPan(samples []pkg.Sample, p panposition) []pkg.Sample {
-	out := []pkg.Sample{}
+func applyPan(samples []pkg.Frame, p panposition) []pkg.Frame {
+	out := []pkg.Frame{}
 	for _, s := range samples {
-		out = append(out, pkg.Sample(float64(s)*p.left))
-		out = append(out, pkg.Sample(float64(s)*p.right))
+		out = append(out, pkg.Frame(float64(s)*p.left))
+		out = append(out, pkg.Frame(float64(s)*p.right))
 	}
 	return out
 }

@@ -23,20 +23,20 @@ func main() {
 		panic("Could not parse wave file")
 	}
 
-	fmt.Printf("Read %v samples\n", len(wave.Samples))
+	fmt.Printf("Read %v samples\n", len(wave.Frames))
 
 	// now try to write this file
-	scaledSamples := changeAmplitude(wave.Samples, scale)
-	if err := pkg.WriteSamples(scaledSamples, wave.WaveFmt, outfile); err != nil {
+	scaledSamples := changeAmplitude(wave.Frames, scale)
+	if err := pkg.WriteFrames(scaledSamples, wave.WaveFmt, outfile); err != nil {
 		panic(err)
 	}
 
 	fmt.Println("done")
 }
 
-func changeAmplitude(samples []pkg.Sample, scalefactor float64) []pkg.Sample {
+func changeAmplitude(samples []pkg.Frame, scalefactor float64) []pkg.Frame {
 	for i, s := range samples {
-		samples[i] = pkg.Sample(float64(s) * scalefactor)
+		samples[i] = pkg.Frame(float64(s) * scalefactor)
 	}
 	return samples
 }
