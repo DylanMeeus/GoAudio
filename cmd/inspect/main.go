@@ -5,7 +5,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/DylanMeeus/Audio/wave/internal"
+	wav "github.com/DylanMeeus/GoAudio/wave"
 )
 
 var (
@@ -17,7 +17,7 @@ func main() {
 	flag.Parse()
 	infile := *input
 	ws := *withSamples
-	wave, err := internal.ReadWaveFile(infile)
+	wave, err := wav.ReadWaveFile(infile)
 	if err != nil {
 		panic(err)
 	}
