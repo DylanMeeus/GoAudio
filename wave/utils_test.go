@@ -8,12 +8,12 @@ var (
 	testBatchSamples = []struct {
 		wave     Wave
 		timespan float64
-		out      [][]Sample
+		out      [][]Frame
 	}{
 		{
 			Wave{},
 			0,
-			[][]Sample{[]Sample{}},
+			[][]Frame{[]Frame{}},
 		},
 		{
 			Wave{
@@ -21,11 +21,11 @@ var (
 					SampleRate: 2, // 2 seconds per sample
 				},
 				WaveData: WaveData{
-					Samples: makeSampleSlice(1, 2, 3, 4, 5, 6, 7, 8),
+					Frames: makeSampleSlice(1, 2, 3, 4, 5, 6, 7, 8),
 				},
 			},
 			2,
-			[][]Sample{makeSampleSlice(1, 2, 3, 4), makeSampleSlice(5, 6, 7, 8)},
+			[][]Frame{makeSampleSlice(1, 2, 3, 4), makeSampleSlice(5, 6, 7, 8)},
 		},
 		{
 			Wave{
@@ -33,11 +33,11 @@ var (
 					SampleRate: 2, // 2 seconds per sample
 				},
 				WaveData: WaveData{
-					Samples: makeSampleSlice(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
+					Frames: makeSampleSlice(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
 				},
 			},
 			2,
-			[][]Sample{makeSampleSlice(1, 2, 3, 4), makeSampleSlice(5, 6, 7, 8), makeSampleSlice(9, 10)},
+			[][]Frame{makeSampleSlice(1, 2, 3, 4), makeSampleSlice(5, 6, 7, 8), makeSampleSlice(9, 10)},
 		},
 	}
 )
@@ -56,15 +56,15 @@ func TestBatching(t *testing.T) {
 
 // helper functions for testing
 
-func makeSampleSlice(input ...float64) (out []Sample) {
+func makeSampleSlice(input ...float64) (out []Frame) {
 	for _, f := range input {
-		out = append(out, Sample(f))
+		out = append(out, Frame(f))
 	}
 	return
 }
 
 // compareSampleSlices makes sure both slices are the same
-func compareSampleSlices(a, b [][]Sample) bool {
+func compareSampleSlices(a, b [][]Frame) bool {
 	if len(a) != len(b) {
 		return false
 	}

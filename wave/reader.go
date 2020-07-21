@@ -61,8 +61,8 @@ func ReadWaveFile(f string) (Wave, error) {
 
 	wavdata := readData(data, wfmt)
 
-	samples := parseRawData(wfmt, wavdata.RawData)
-	wavdata.Samples = samples
+	frames := parseRawData(wfmt, wavdata.RawData)
+	wavdata.Frames = frames
 
 	return Wave{
 		WaveHeader: hdr,
@@ -134,28 +134,28 @@ func readData(b []byte, wfmt WaveFmt) WaveData {
 }
 
 // Should we do n-channel separation at this point?
-func parseRawData(wfmt WaveFmt, rawdata []byte) []Sample {
+func parseRawData(wfmt WaveFmt, rawdata []byte) []Frame {
 	bytesSampleSize := wfmt.BitsPerSample / 8
 	// TODO: sanity-check that this is a power of 2? I think only those sample sizes are
 	// possible
 
 	// TODO: READ AS INT??????
 
-	samples := []Sample{}
+	frames := []Frame{}
 	// read the chunks
 	for i := 0; i < len(rawdata); i += bytesSampleSize {
 		rawFrame := rawdata[i : i+bytesSampleSize]
 		unscaledFrame := byteSizeToIntFunc[wfmt.BitsPerSample](rawFrame)
 		scaled := scaleFrame(unscaledFrame, wfmt.BitsPerSample)
-		samples = append(samples, scaled)
+		frames = append(frames, scaled)
 	}
 
-	return samples
+	return frames
 }
 
-func scaleFrame(unscaled, bits int) Sample {
+func scaleFrame(unscaled, bits int) Frame {
 	maxV := maxValues[bits]
-	return Sample(float64(unscaled) / float64(maxV))
+	return Frame(float64(unscaled) / float64(maxV))
 
 }
 

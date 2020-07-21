@@ -28,7 +28,7 @@ var (
 // WriteSamples writes the slice to disk as a .wav file
 // the WaveFmt metadata needs to be correct
 // WaveData and WaveHeader are inferred from the samples however..
-func WriteSamples(samples []Sample, wfmt WaveFmt, file string) error {
+func WriteFrames(samples []Frame, wfmt WaveFmt, file string) error {
 
 	// construct this in reverse (Data -> Fmt -> Header)
 	// as Fmt needs info of Data, and Hdr needs to know entire length of file
@@ -37,7 +37,7 @@ func WriteSamples(samples []Sample, wfmt WaveFmt, file string) error {
 	bits := []byte{}
 
 	wfb := fmtToBytes(wfmt)
-	data, databits := samplesToData(samples, wfmt)
+	data, databits := framesToData(samples, wfmt)
 	hdr := createHeader(data)
 
 	bits = append(bits, hdr...)
@@ -61,13 +61,13 @@ func int32ToBytes(i int) []byte {
 	return b
 }
 
-func samplesToData(samples []Sample, wfmt WaveFmt) (WaveData, []byte) {
+func framesToData(frames []Frame, wfmt WaveFmt) (WaveData, []byte) {
 	b := []byte{}
-	raw := samplesToRawData(samples, wfmt)
+	raw := samplesToRawData(frames, wfmt)
 
 	fmt.Printf("raw length: %v\n", len(raw))
 	bytesPerSample := wfmt.BitsPerSample / 8
-	subchunksize := len(samples) * wfmt.NumChannels * bytesPerSample
+	subchunksize := len(frames) * wfmt.NumChannels * bytesPerSample
 	subBytes := int32ToBytes(subchunksize)
 
 	// construct the data part..
@@ -79,7 +79,7 @@ func samplesToData(samples []Sample, wfmt WaveFmt) (WaveData, []byte) {
 		Subchunk2ID:   Subchunk2ID,
 		Subchunk2Size: subchunksize,
 		RawData:       raw,
-		Samples:       samples,
+		Frames:        frames,
 	}
 	return wd, b
 }
@@ -99,7 +99,7 @@ func floatToBytes(f float64, nBytes int) []byte {
 }
 
 // Turn the samples into raw data...
-func samplesToRawData(samples []Sample, props WaveFmt) []byte {
+func samplesToRawData(samples []Frame, props WaveFmt) []byte {
 	raw := []byte{}
 	for _, s := range samples {
 		// the samples are scaled - rescale them?
@@ -112,7 +112,7 @@ func samplesToRawData(samples []Sample, props WaveFmt) []byte {
 }
 
 // rescale frames back to the original values..
-func rescaleFrame(s Sample, bits int) int {
+func rescaleFrame(s Frame, bits int) int {
 	rescaled := float64(s) * float64(maxValues[bits])
 	return int(rescaled)
 }

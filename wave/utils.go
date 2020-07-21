@@ -3,14 +3,14 @@ package wave
 // utility functions for dealing with wave files.
 
 // BatchSamples batches the samples per requested timespan expressed in seconds
-func BatchSamples(data Wave, seconds float64) [][]Sample {
+func BatchSamples(data Wave, seconds float64) [][]Frame {
 	if seconds == 0 {
-		return [][]Sample{
-			data.Samples,
+		return [][]Frame{
+			data.Frames,
 		}
 	}
 
-	samples := data.Samples
+	samples := data.Frames
 
 	sampleSize := int(float64(data.SampleRate) * float64(seconds))
 
@@ -19,7 +19,7 @@ func BatchSamples(data Wave, seconds float64) [][]Sample {
 		batches++
 	}
 
-	batched := make([][]Sample, batches) // this should be round up..
+	batched := make([][]Frame, batches) // this should be round up..
 	for i := 0; i < len(batched); i++ {
 		start := i * sampleSize
 		if start > len(samples) {
