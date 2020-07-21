@@ -132,12 +132,15 @@ func parseRawData(wfmt WaveFmt, rawdata []byte) []Sample {
 	// TODO: sanity-check that this is a power of 2? I think only those sample sizes are
 	// possible
 
+	// TODO: READ AS INT??????
+
 	samples := []Sample{}
 	// read the chunks
 	for i := 0; i < len(rawdata); i += bytesSampleSize {
-		rawSample := rawdata[i : i+bytesSampleSize]
-		sample := bitsToFloat(rawSample)
-		samples = append(samples, Sample(sample))
+		rawFrame := rawdata[i : i+bytesSampleSize]
+		unscaledFrame := byteSizeToIntFunc[wfmt.BitsPerSample](rawFrame)
+		// scale this frame?
+		samples = append(samples, Sample(unscaledFrame))
 	}
 
 	return samples

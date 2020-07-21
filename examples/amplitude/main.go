@@ -36,6 +36,7 @@ func main() {
 
 func changeAmplitude(samples []pkg.Sample, scalefactor float64) []pkg.Sample {
 	for i, s := range samples {
+		fmt.Printf("%f\n", float64(samples[i]))
 		samples[i] = pkg.Sample(float64(s) * scalefactor)
 	}
 	return samples

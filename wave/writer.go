@@ -15,6 +15,16 @@ var (
 	Subchunk2ID      = []byte{0x64, 0x61, 0x74, 0x61} // DATA
 )
 
+type intsToBytesFunc func(i int) []byte
+
+var (
+	// intsToBytesFm to map X-bit int to byte functions
+	intsToBytesFm = map[int]intsToBytesFunc{
+		16: int16ToBytes,
+		32: int32ToBytes,
+	}
+)
+
 // WriteSamples writes the slice to disk as a .wav file
 // the WaveFmt metadata needs to be correct
 // WaveData and WaveHeader are inferred from the samples however..
@@ -92,7 +102,8 @@ func floatToBytes(f float64, nBytes int) []byte {
 func samplesToRawData(samples []Sample, props WaveFmt) []byte {
 	raw := []byte{}
 	for _, s := range samples {
-		bits := floatToBytes(float64(s), props.BitsPerSample/8)
+		bits := intsToBytesFm[props.BitsPerSample](int(s))
+		// bits := floatToBytes(float64(s), props.BitsPerSample/8)
 		raw = append(raw, bits...)
 	}
 	return raw
