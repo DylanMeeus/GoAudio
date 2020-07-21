@@ -102,7 +102,9 @@ func floatToBytes(f float64, nBytes int) []byte {
 func samplesToRawData(samples []Sample, props WaveFmt) []byte {
 	raw := []byte{}
 	for _, s := range samples {
-		bits := intsToBytesFm[props.BitsPerSample](int(s))
+		// the samples are scaled - rescale them?
+		rescaled := float64(s) * float64(maxValues[props.BitsPerSample])
+		bits := intsToBytesFm[props.BitsPerSample](int(rescaled))
 		// bits := floatToBytes(float64(s), props.BitsPerSample/8)
 		raw = append(raw, bits...)
 	}
