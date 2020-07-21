@@ -103,12 +103,18 @@ func samplesToRawData(samples []Sample, props WaveFmt) []byte {
 	raw := []byte{}
 	for _, s := range samples {
 		// the samples are scaled - rescale them?
-		rescaled := float64(s) * float64(maxValues[props.BitsPerSample])
-		bits := intsToBytesFm[props.BitsPerSample](int(rescaled))
+		rescaled := rescaleFrame(s, props.BitsPerSample)
+		bits := intsToBytesFm[props.BitsPerSample](rescaled)
 		// bits := floatToBytes(float64(s), props.BitsPerSample/8)
 		raw = append(raw, bits...)
 	}
 	return raw
+}
+
+// rescale frames back to the original values..
+func rescaleFrame(s Sample, bits int) int {
+	rescaled := float64(s) * float64(maxValues[bits])
+	return int(rescaled)
 }
 
 func fmtToBytes(wfmt WaveFmt) []byte {
