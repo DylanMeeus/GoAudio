@@ -57,23 +57,25 @@ func ParseBreakpoints(in io.Reader) ([]Breakpoint, error) {
 }
 
 // ValueAt returns the expected value at a given time (expressed as float64) by linear interpolation
-func ValueAt(bs []Breakpoint, time float64) float64 {
+// Returns the index at which we found our value as well as the value itself.
+func ValueAt(bs []Breakpoint, time float64, startIndex int) (index int, value float64) {
 	if len(bs) == 0 {
-		return 0
+		return 0, 0
 	}
 	npoints := len(bs)
 
 	// first we need to find a span containing our timeslot
-	startSpan := 0 // start of span
-	for _, b := range bs {
+	startSpan := startIndex // start of span
+	for _, b := range bs[startSpan:] {
 		if b.Time > time {
 			break
 		}
 		startSpan++
 	}
+
 	// Our span is never-ending (the last point in our breakpoint file was hit)
 	if startSpan == npoints {
-		return bs[startSpan-1].Value
+		return startSpan, bs[startSpan-1].Value
 	}
 
 	left := bs[startSpan-1]
@@ -84,14 +86,14 @@ func ValueAt(bs []Breakpoint, time float64) float64 {
 	width := right.Time - left.Time
 
 	if width == 0 {
-		return right.Value
+		return startSpan, right.Value
 	}
 
 	frac := (time - left.Time) / width
 
 	val := left.Value + ((right.Value - left.Value) * frac)
 
-	return val
+	return startSpan, val
 }
 
 // MinMaxValue returns the smallest and largest value found in the breakpoint file

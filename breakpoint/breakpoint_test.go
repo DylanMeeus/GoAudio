@@ -111,7 +111,7 @@ func TestBreakpoint(t *testing.T) {
 func TestValueAt(t *testing.T) {
 	for _, test := range valueAtTests {
 		t.Run("", func(t *testing.T) {
-			res := ValueAt(test.breaks, test.time)
+			_, res := ValueAt(test.breaks, test.time, 0)
 			if res != test.out {
 				t.Fatalf("expected %v, got %v", test.out, res)
 			}
