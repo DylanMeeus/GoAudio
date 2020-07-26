@@ -104,7 +104,7 @@ func withBreakpointFile() {
 
 	for _, s := range insamples {
 		// apply pan
-		pos := brk.ValueAt(pnts, sampletime)
+		_, pos := brk.ValueAt(pnts, sampletime, 0)
 		pan := calculateConstantPowerPosition(pos)
 		out = append(out, wav.Frame(float64(s)*pan.left))
 		out = append(out, wav.Frame(float64(s)*pan.right))
