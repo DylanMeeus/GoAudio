@@ -60,7 +60,7 @@ type Wave struct {
 type WaveHeader struct {
 	ChunkID   []byte // should be RIFF on little-endian or RIFX on big-endian systems..
 	ChunkSize int
-	Format    string // sanity-check, should be WAVE (//TODO: keep bytes??)
+	Format    string // sanity-check, should be WAVE (//TODO: keep as []byte?)
 }
 
 // WaveFmt describes the format of the sound-information in the data subchunks
@@ -83,4 +83,19 @@ type WaveData struct {
 	Subchunk2Size int    // size of raw sound data
 	RawData       []byte // raw sound data itself
 	Frames        []Frame
+}
+
+// NewWaveFmt can be used to generate a complete WaveFmt by calculating the remaining props
+func NewWaveFmt(format, channels, samplerate, bitspersample int, extraparams []byte) WaveFmt {
+	return WaveFmt{
+		Subchunk1ID:    Format,
+		Subchunk1Size:  16, // assume PCM for now
+		AudioFormat:    format,
+		NumChannels:    channels,
+		SampleRate:     samplerate,
+		ByteRate:       samplerate * channels * (bitspersample / 8.0),
+		BlockAlign:     channels * (bitspersample / 8),
+		ExtraParamSize: len(extraparams),
+		ExtraParams:    extraparams,
+	}
 }

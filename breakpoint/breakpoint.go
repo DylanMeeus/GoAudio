@@ -35,6 +35,9 @@ func ParseBreakpoints(in io.Reader) ([]Breakpoint, error) {
 			continue
 		}
 		parts := strings.Split(line, ":")
+		if len(parts) != 2 {
+			return brkpnts, err
+		}
 		time := parts[0]
 		value := parts[1]
 
