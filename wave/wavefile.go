@@ -95,6 +95,7 @@ func NewWaveFmt(format, channels, samplerate, bitspersample int, extraparams []b
 		SampleRate:     samplerate,
 		ByteRate:       samplerate * channels * (bitspersample / 8.0),
 		BlockAlign:     channels * (bitspersample / 8),
+		BitsPerSample:  bitspersample,
 		ExtraParamSize: len(extraparams),
 		ExtraParams:    extraparams,
 	}
