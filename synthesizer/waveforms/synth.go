@@ -1,0 +1,5 @@
+package waveforms
+
+func sineWave() {
+
+}

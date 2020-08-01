@@ -77,6 +77,8 @@ var (
 )
 
 func TestBreakpoint(t *testing.T) {
+	// TODO: these breakpoints are invalid as long as we can't timetravel. Time should be strictly
+	// increasing..
 	input := `
 	3.0:1.31415
 	-1:1.32134
@@ -105,6 +107,49 @@ func TestBreakpoint(t *testing.T) {
 	}
 	if brk[2].Value != 0 {
 		t.Fatal("Breakpoint does not match input")
+	}
+}
+
+// TestbreakpointStream tests various assumptions of how ticks should be handled
+// We test at 10 samples per second for convenience (easier to verify correctness)
+// Thus each -tick- should update our position by 0.1
+func TestBreakpointStream(t *testing.T) {
+	input := `
+	0:100
+	10:50
+	20:100
+	`
+	samplerate := 10 // 10 sample per second
+	brks, err := ParseBreakpoints(strings.NewReader(input))
+	if err != nil {
+		t.Fatalf("Should be able to parse breakpoints: %v", err)
+	}
+	stream, err := NewBreakpointStream(brks, samplerate)
+	if err != nil {
+		t.Fatalf("Should be able to create breakpoint stream: %v", err)
+	}
+
+	if stream.Increment != 1.0/float64(samplerate) {
+		t.Fatal("Incorrect increment")
+	}
+	value := stream.Tick()
+	if stream.CurrentPosition != 0.1 {
+		t.Fatal("Incorrectly incremented stream")
+	}
+	// move to 5 seconds (50 ticks)
+	for i := 0; i < 50; i++ {
+		value = stream.Tick()
+	}
+	if value != 75 {
+		t.Fatalf("Expected 75 but got %v", value)
+	}
+
+	t.Log("Should be able to get values beyond the end of the stream")
+	for i := 0; i < 10e5; i++ {
+		value = stream.Tick()
+	}
+	if value != 100 {
+		t.Fatalf("Value should be 100, but got %v", value)
 	}
 }
 

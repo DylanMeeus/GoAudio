@@ -69,7 +69,7 @@ func NewBreakpointStream(bs []Breakpoint, sr int) (*BreakpointStream, error) {
 	if len(bs) == 0 {
 		return nil, errors.New("Need at least two points to create a stream")
 	}
-	right, left := bs[0], bs[1]
+	left, right := bs[0], bs[1]
 	return &BreakpointStream{
 		Breakpoints:     Breakpoints(bs),
 		Increment:       1.0 / float64(sr),
