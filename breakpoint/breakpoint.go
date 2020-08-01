@@ -74,7 +74,7 @@ func NewBreakpointStream(bs []Breakpoint, sr int) (*BreakpointStream, error) {
 		Breakpoints:     Breakpoints(bs),
 		Increment:       1.0 / float64(sr),
 		IndexLeft:       0,
-		IndexRight:      0,
+		IndexRight:      1,
 		CurrentPosition: 0,
 		Left:            left,
 		Right:           right,

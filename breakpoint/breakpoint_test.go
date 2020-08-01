@@ -144,6 +144,11 @@ func TestBreakpointStream(t *testing.T) {
 		t.Fatalf("Expected 75 but got %v", value)
 	}
 
+	// move to second 15
+	for i := 0; i < 100; i++ {
+		value = stream.Tick()
+	}
+
 	t.Log("Should be able to get values beyond the end of the stream")
 	for i := 0; i < 10e5; i++ {
 		value = stream.Tick()
