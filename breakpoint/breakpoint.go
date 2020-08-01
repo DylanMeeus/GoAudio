@@ -3,6 +3,7 @@ package util
 // convenience functions for dealing with breakpoints
 
 import (
+	"errors"
 	"io"
 	"io/ioutil"
 	"strconv"
@@ -13,6 +14,74 @@ type Breakpoints []Breakpoint
 
 type Breakpoint struct {
 	Time, Value float64
+}
+
+// BreakpointsStream can be used to to treat breakpoints as a stream of data
+// Each 'tick' can manipulate the state of the breakpoint stream
+type BreakpointStream struct {
+	Breakpoints     Breakpoints
+	Left            Breakpoint
+	Right           Breakpoint
+	IndexLeft       int
+	IndexRight      int
+	CurrentPosition float64 // current position in timeframes
+	Increment       float64
+	Width           float64
+	Height          float64
+	HasMore         bool
+}
+
+// Tick returns the next value in the breakpoint stream
+func (b *BreakpointStream) Tick() (out float64) {
+	if !b.HasMore {
+		// permanently the last value
+		return b.Right.Value
+	}
+	if b.Width == 0.0 {
+		out = b.Right.Value
+	} else {
+		// figure out value from linear interpolation
+		frac := (float64(b.CurrentPosition) - b.Left.Time) / b.Width
+		out = b.Left.Value + (b.Height * frac)
+	}
+
+	// prepare for next frame
+	b.CurrentPosition += b.Increment
+	if b.CurrentPosition > b.Right.Time {
+		// move to next span
+		b.IndexLeft++
+		b.IndexRight++
+		if b.IndexRight < len(b.Breakpoints) {
+			b.Left = b.Breakpoints[b.IndexLeft]
+			b.Right = b.Breakpoints[b.IndexRight]
+			b.Width = b.Right.Time - b.Left.Time
+			b.Height = b.Right.Value - b.Left.Value
+		} else {
+			// no more points
+			b.HasMore = false
+		}
+	}
+	return out
+}
+
+// NewBreakpointStream represents a slice of breakpoints streamed at a given sample rate
+func NewBreakpointStream(bs []Breakpoint, sr int) (*BreakpointStream, error) {
+	if len(bs) == 0 {
+		return nil, errors.New("Need at least two points to create a stream")
+	}
+	right, left := bs[0], bs[1]
+	return &BreakpointStream{
+		Breakpoints:     Breakpoints(bs),
+		Increment:       1.0 / float64(sr),
+		IndexLeft:       0,
+		IndexRight:      0,
+		CurrentPosition: 0,
+		Left:            left,
+		Right:           right,
+		Width:           right.Time - left.Time,   // first span
+		Height:          right.Value - left.Value, // diff of first span
+		HasMore:         len(bs) > 0,
+	}, nil
 }
 
 // ParseBreakpoints reads the breakpoints from an io.Reader
