@@ -2,22 +2,69 @@ package synthesizer
 
 // package to generate oscillators of various shapes
 
-import "math"
+import (
+	"fmt"
+	"math"
+)
 
 const tau = (2 * math.Pi)
+
+// Shape for defining the different possible waveform shapes for use with the Oscillator
+type Shape int
+
+const (
+	SINE Shape = iota
+	SQUARE
+	DOWNWARD_SAWTOOTH
+	UPWARD_SAWTOOTH
+	TRIANGLE
+)
+
+var (
+	shapeCalcFunc = map[Shape]func(float64) float64{
+		SINE:              sineCalc,
+		SQUARE:            squareCalc,
+		TRIANGLE:          triangleCalc,
+		DOWNWARD_SAWTOOTH: downSawtoothCalc,
+		UPWARD_SAWTOOTH:   upwSawtoothCalc,
+	}
+)
 
 type Oscillator struct {
 	curfreq  float64
 	curphase float64
 	incr     float64
 	twopiosr float64 // (2*PI) / samplerate
+	tickfunc func(float64) float64
 }
 
 // NewOscillator set to a given sample rate
-func NewOscillator(sr int) *Oscillator {
+func NewOscillator(sr int, shape Shape) (*Oscillator, error) {
+	cf, ok := shapeCalcFunc[shape]
+	if !ok {
+		return nil, fmt.Errorf("Shape type %v not supported", shape)
+	}
 	return &Oscillator{
 		twopiosr: tau / float64(sr),
+		tickfunc: cf,
+	}, nil
+}
+
+func (o *Oscillator) Tick(freq float64) float64 {
+	if o.curfreq != freq {
+		o.curfreq = freq
+		o.incr = o.twopiosr * freq
 	}
+	val := o.tickfunc(o.curphase)
+	o.curphase += o.incr
+	if o.curphase >= tau {
+		o.curphase -= tau
+	}
+	if o.curphase < 0 {
+		o.curphase = tau
+	}
+	return val
+
 }
 
 func triangleCalc(phase float64) float64 {
@@ -49,92 +96,4 @@ func squareCalc(phase float64) float64 {
 
 func sineCalc(phase float64) float64 {
 	return math.Sin(phase)
-}
-
-func triangleTick(o *Oscillator, freq float64) float64 {
-	if o.curfreq != freq {
-		o.curfreq = freq
-		o.incr = o.twopiosr * freq
-	}
-	val := triangleCalc(o.curphase)
-	o.curphase += o.incr
-	if o.curphase >= tau {
-		o.curphase -= tau
-	}
-	if o.curphase < 0 {
-		o.curphase = tau
-	}
-	return val
-}
-
-// A signal that is either 1 or -1 (cycle per math.Pi dist)
-func upwardSawtooth(o *Oscillator, freq float64) float64 {
-	if o.curfreq != freq {
-		o.curfreq = freq
-		o.incr = o.twopiosr * freq
-	}
-	val := upwSawtoothCalc(o.curphase)
-	o.curphase += o.incr
-	if o.curphase >= tau {
-		o.curphase -= tau
-	}
-	if o.curphase < 0 {
-		o.curphase = tau
-	}
-	return val
-}
-
-// A signal that is either 1 or -1 (cycle per math.Pi dist)
-func downwardSawtooth(o *Oscillator, freq float64) float64 {
-	if o.curfreq != freq {
-		o.curfreq = freq
-		o.incr = o.twopiosr * freq
-	}
-
-	val := downSawtoothCalc(o.curphase)
-
-	o.curphase += o.incr
-	if o.curphase >= tau {
-		o.curphase -= tau
-	}
-	if o.curphase < 0 {
-		o.curphase = tau
-	}
-	return val
-}
-
-// A signal that is either 1 or -1 (cycle per math.Pi dist)
-func sqTick(o *Oscillator, freq float64) float64 {
-	if o.curfreq != freq {
-		o.curfreq = freq
-		o.incr = o.twopiosr * freq
-	}
-
-	val := squareCalc(o.curphase)
-	o.curphase += o.incr
-	if o.curphase >= tau {
-		o.curphase -= tau
-	}
-	if o.curphase < 0 {
-		o.curphase = tau
-	}
-	return val
-}
-
-func sineTick(o *Oscillator, freq float64) float64 {
-	val := sineCalc(o.curphase)
-	if o.curfreq != freq {
-		o.curfreq = freq
-		o.incr = o.twopiosr * freq
-	}
-
-	o.curphase += o.incr
-	if o.curphase >= tau {
-		o.curphase -= tau
-	}
-	if o.curphase < 0 {
-		o.curphase = tau
-	}
-	return val
-
 }
