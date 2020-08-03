@@ -98,17 +98,17 @@ func withBreakpointFile() {
 	// for this we need to know the time at each sample.
 	// which is the reciprocal of sample rate
 	timeincr := 1.0 / float64(wave.SampleRate)
-	var sampletime float64
-	insamples := wave.Frames
+	var frametime float64
+	inframes := wave.Frames
 	var out []wav.Frame
 
-	for _, s := range insamples {
+	for _, s := range inframes {
 		// apply pan
-		_, pos := brk.ValueAt(pnts, sampletime, 0)
+		_, pos := brk.ValueAt(pnts, frametime, 0)
 		pan := calculateConstantPowerPosition(pos)
 		out = append(out, wav.Frame(float64(s)*pan.left))
 		out = append(out, wav.Frame(float64(s)*pan.right))
-		sampletime += timeincr
+		frametime += timeincr
 	}
 
 	wave.NumChannels = 2
