@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	wav "github.com/DylanMeeus/GoAudio/wave"
+	"os"
 )
 
 var (
@@ -15,7 +16,11 @@ var (
 
 func main() {
 	flag.Parse()
-	infile := *input
+	as := os.Args[1:]
+	if len(as) == 0 {
+		panic("Please provide file")
+	}
+	infile := as[0]
 	ws := *withSamples
 	wave, err := wav.ReadWaveFile(infile)
 	if err != nil {

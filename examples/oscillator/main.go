@@ -31,6 +31,7 @@ var (
 // Modified by amplitude / frequency breakpoints
 func main() {
 	flag.Parse()
+	fmt.Println("usage: go run main -d {dur} -s {shape} -a {amps} -f {freqs} -o {output}")
 	if output == nil {
 		panic("please provide an output file")
 	}

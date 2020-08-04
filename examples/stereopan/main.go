@@ -102,6 +102,7 @@ func withBreakpointFile() {
 	inframes := wave.Frames
 	var out []wav.Frame
 
+	wave.WaveFmt.NumChannels = 2
 	for _, s := range inframes {
 		// apply pan
 		_, pos := brk.ValueAt(pnts, frametime, 0)
@@ -111,13 +112,12 @@ func withBreakpointFile() {
 		frametime += timeincr
 	}
 
-	wave.NumChannels = 2
 	wav.WriteFrames(out, wave.WaveFmt, *output)
 }
 
 func main() {
-	setPan()
-	//withBreakpointFile()
+	//setPan()
+	withBreakpointFile()
 }
 
 func applyPan(samples []wav.Frame, p panposition) []wav.Frame {

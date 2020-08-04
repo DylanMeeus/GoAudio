@@ -66,8 +66,9 @@ func framesToData(frames []Frame, wfmt WaveFmt) (WaveData, []byte) {
 	raw := samplesToRawData(frames, wfmt)
 
 	fmt.Printf("raw length: %v\n", len(raw))
-	bytesPerSample := wfmt.BitsPerSample / 8
-	subchunksize := len(frames) * wfmt.NumChannels * bytesPerSample
+	// We receive frames but have to store the size of the samples
+	// The size of the samples is frames / channels..
+	subchunksize := (len(frames) / wfmt.NumChannels) * (wfmt.BitsPerSample / 8)
 	subBytes := int32ToBytes(subchunksize)
 
 	// construct the data part..
