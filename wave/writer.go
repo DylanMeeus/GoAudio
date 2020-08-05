@@ -68,7 +68,7 @@ func framesToData(frames []Frame, wfmt WaveFmt) (WaveData, []byte) {
 	fmt.Printf("raw length: %v\n", len(raw))
 	// We receive frames but have to store the size of the samples
 	// The size of the samples is frames / channels..
-	subchunksize := (len(frames) / wfmt.NumChannels) * (wfmt.BitsPerSample / 8)
+	subchunksize := (len(frames) * wfmt.NumChannels * wfmt.BitsPerSample) / 8
 	subBytes := int32ToBytes(subchunksize)
 
 	// construct the data part..
@@ -106,7 +106,6 @@ func samplesToRawData(samples []Frame, props WaveFmt) []byte {
 		// the samples are scaled - rescale them?
 		rescaled := rescaleFrame(s, props.BitsPerSample)
 		bits := intsToBytesFm[props.BitsPerSample](rescaled)
-		// bits := floatToBytes(float64(s), props.BitsPerSample/8)
 		raw = append(raw, bits...)
 	}
 	return raw

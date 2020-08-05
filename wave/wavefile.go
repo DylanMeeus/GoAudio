@@ -100,3 +100,10 @@ func NewWaveFmt(format, channels, samplerate, bitspersample int, extraparams []b
 		ExtraParams:    extraparams,
 	}
 }
+
+// SetChannels changes the FMT to adapt to a new amount of channels
+func (wfmt *WaveFmt) SetChannels(n uint) {
+	wfmt.NumChannels = int(n)
+	wfmt.ByteRate = (wfmt.SampleRate * wfmt.NumChannels * wfmt.BitsPerSample) / 8
+	wfmt.BlockAlign = (wfmt.NumChannels * wfmt.BitsPerSample) / 8
+}

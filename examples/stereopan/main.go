@@ -102,7 +102,7 @@ func withBreakpointFile() {
 	inframes := wave.Frames
 	var out []wav.Frame
 
-	wave.WaveFmt.NumChannels = 2
+	wave.WaveFmt.SetChannels(2)
 	for _, s := range inframes {
 		// apply pan
 		_, pos := brk.ValueAt(pnts, frametime, 0)
