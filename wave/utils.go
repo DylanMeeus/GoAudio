@@ -2,8 +2,8 @@ package wave
 
 // utility functions for dealing with wave files.
 
-// BatchSamples batches the samples per requested timespan expressed in seconds
-func BatchSamples(data Wave, seconds float64) [][]Frame {
+// BatchFrames batches the samples per requested timespan expressed in seconds
+func BatchFrames(data Wave, seconds float64) [][]Frame {
 	if seconds == 0 {
 		return [][]Frame{
 			data.Frames,
