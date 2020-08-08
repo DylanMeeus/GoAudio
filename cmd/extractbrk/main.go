@@ -34,7 +34,7 @@ func main() {
 	fmt.Printf("Read %v samples\n", len(wave.Frames))
 
 	ticks := float64(*window) / 1000.0
-	batches := wav.BatchFrames(wave, ticks)
+	batches := wav.BatchSamples(wave, ticks)
 
 	strout := strings.Builder{}
 	elapsed := 0.0

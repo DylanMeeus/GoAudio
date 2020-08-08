@@ -18,7 +18,8 @@ var (
 		{
 			Wave{
 				WaveFmt: WaveFmt{
-					SampleRate: 2, // 2 seconds per sample
+					SampleRate:  2, // 2 seconds per sample
+					NumChannels: 1,
 				},
 				WaveData: WaveData{
 					Frames: makeSampleSlice(1, 2, 3, 4, 5, 6, 7, 8),
@@ -30,7 +31,8 @@ var (
 		{
 			Wave{
 				WaveFmt: WaveFmt{
-					SampleRate: 2, // 2 seconds per sample
+					SampleRate:  2, // 2 seconds per sample
+					NumChannels: 1,
 				},
 				WaveData: WaveData{
 					Frames: makeSampleSlice(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
@@ -39,6 +41,20 @@ var (
 			2,
 			[][]Frame{makeSampleSlice(1, 2, 3, 4), makeSampleSlice(5, 6, 7, 8), makeSampleSlice(9, 10)},
 		},
+		{
+			// test for multi-cuannel wave files
+			Wave{
+				WaveFmt: WaveFmt{
+					SampleRate:  2, // 2 seconds per sample
+					NumChannels: 2,
+				},
+				WaveData: WaveData{
+					Frames: makeSampleSlice(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
+				},
+			},
+			0.5,
+			[][]Frame{makeSampleSlice(1, 2), makeSampleSlice(3, 4), makeSampleSlice(5, 6), makeSampleSlice(7, 8), makeSampleSlice(9, 10)},
+		},
 	}
 )
 
@@ -46,7 +62,7 @@ func TestBatching(t *testing.T) {
 	t.Logf("Testing batching of samples per time slice")
 	for _, test := range testBatchSamples {
 		t.Run("", func(t *testing.T) {
-			res := BatchFrames(test.wave, test.timespan)
+			res := BatchSamples(test.wave, test.timespan)
 			if !compareSampleSlices(res, test.out) {
 				t.Fatalf("expected %v, got %v", test.out, res)
 			}
