@@ -46,7 +46,7 @@ func TestBatching(t *testing.T) {
 	t.Logf("Testing batching of samples per time slice")
 	for _, test := range testBatchSamples {
 		t.Run("", func(t *testing.T) {
-			res := BatchSamples(test.wave, test.timespan)
+			res := BatchFrames(test.wave, test.timespan)
 			if !compareSampleSlices(res, test.out) {
 				t.Fatalf("expected %v, got %v", test.out, res)
 			}
