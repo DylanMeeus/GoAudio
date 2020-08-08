@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"io/ioutil"
 	"strconv"
 	"strings"
@@ -26,12 +25,6 @@ func main() {
 	if err != nil {
 		panic("Could not parse wave file")
 	}
-
-	if wave.NumChannels != 1 {
-		panic("Only mono soundfiles are supported for now")
-	}
-
-	fmt.Printf("Read %v samples\n", len(wave.Frames))
 
 	ticks := float64(*window) / 1000.0
 	batches := wav.BatchSamples(wave, ticks)

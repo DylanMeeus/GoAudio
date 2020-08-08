@@ -50,6 +50,20 @@ func NewOscillator(sr int, shape Shape) (*Oscillator, error) {
 	}, nil
 }
 
+// NewPhaseOscillator creates a new oscillator where the initial phase is offset
+// by a given phase
+func NewPhaseOscillator(sr int, phase float64, shape Shape) (*Oscillator, error) {
+	cf, ok := shapeCalcFunc[shape]
+	if !ok {
+		return nil, fmt.Errorf("Shape type %v not supported", shape)
+	}
+	return &Oscillator{
+		twopiosr: tau / float64(sr),
+		tickfunc: cf,
+		curphase: tau * phase,
+	}, nil
+}
+
 func (o *Oscillator) Tick(freq float64) float64 {
 	if o.curfreq != freq {
 		o.curfreq = freq
