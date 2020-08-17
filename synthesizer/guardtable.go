@@ -39,7 +39,6 @@ func NewTriangleTable(length int, nharmonics int) (*Gtable, error) {
 	}
 
 	g := &Gtable{}
-
 	g.data = make([]float64, length+1)
 
 	step := tau / float64(length)
@@ -53,11 +52,17 @@ func NewTriangleTable(length int, nharmonics int) (*Gtable, error) {
 		}
 		harmonic += 2
 	}
-
 	// normalize the values to be in the [-1;1] range
+	g.data = normalize(g.data)
+	return g, nil
+}
+
+// normalize the functions to the range -1, 1
+func normalize(xs []float64) []float64 {
+	length := len(xs)
 	maxamp := 0.0
 	for i := 0; i < length; i++ {
-		amp := math.Abs(g.data[i])
+		amp := math.Abs(xs[i])
 		if amp > amp {
 			maxamp = amp
 		}
@@ -65,9 +70,8 @@ func NewTriangleTable(length int, nharmonics int) (*Gtable, error) {
 
 	maxamp = 1.0 / maxamp
 	for i := 0; i < length; i++ {
-		g.data[i] *= maxamp
+		xs[i] *= maxamp
 	}
-	g.data[len(g.data)-1] = g.data[0]
-
-	return g, nil
+	xs[len(xs)-1] = xs[0]
+	return xs
 }
