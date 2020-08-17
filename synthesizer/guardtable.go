@@ -46,7 +46,7 @@ func NewTriangleTable(length int, nharmonics int) (*Gtable, error) {
 	// generate triangle waveform
 	harmonic := 1.0
 	for i := 0; i < nharmonics; i++ {
-		amp := 1.0 / harmonic * harmonic
+		amp := 1.0 / (harmonic * harmonic)
 		for j := 0; j < length; j++ {
 			g.data[j] += amp * math.Cos(step*harmonic*float64(j))
 		}
@@ -63,7 +63,7 @@ func normalize(xs []float64) []float64 {
 	maxamp := 0.0
 	for i := 0; i < length; i++ {
 		amp := math.Abs(xs[i])
-		if amp > amp {
+		if amp > maxamp {
 			maxamp = amp
 		}
 	}

@@ -1,6 +1,8 @@
 package synthesizer
 
-import "errors"
+import (
+	"errors"
+)
 
 // LookupOscillator is an oscillator that's more gentle on your CPU
 // By performing a table lookup to generate the required waveform..
