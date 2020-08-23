@@ -12,6 +12,7 @@ const tau = (2 * math.Pi)
 // Shape for defining the different possible waveform shapes for use with the Oscillator
 type Shape int
 
+// Shapes for which we can generate waveforms
 const (
 	SINE Shape = iota
 	SQUARE
@@ -30,6 +31,7 @@ var (
 	}
 )
 
+// Oscillator represents a wave-oscillator where each tick is calculated in the moment.
 type Oscillator struct {
 	curfreq  float64
 	curphase float64
@@ -64,6 +66,7 @@ func NewPhaseOscillator(sr int, phase float64, shape Shape) (*Oscillator, error)
 	}, nil
 }
 
+// Tick generates the next value of the oscillator waveform at a given frequency in Hz
 func (o *Oscillator) Tick(freq float64) float64 {
 	if o.curfreq != freq {
 		o.curfreq = freq

@@ -19,6 +19,7 @@ type config struct {
 	Amplitude  float64
 }
 
+// Constants for generating our output
 const (
 	DURATION = iota
 	MIDI

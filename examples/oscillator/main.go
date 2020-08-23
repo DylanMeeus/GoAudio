@@ -46,6 +46,9 @@ func main() {
 		panic(err)
 	}
 	ampStream, err := breakpoint.NewBreakpointStream(ampPoints, wfmt.SampleRate)
+	if err != nil {
+		panic(err)
+	}
 
 	freqs, err := ioutil.ReadFile(*freqpoints)
 	if err != nil {

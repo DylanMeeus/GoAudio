@@ -6,7 +6,7 @@ import (
 	"math"
 )
 
-// Guard-table for oscillator lookup
+// Gtable is a Guard-table for oscillator lookup
 type Gtable struct {
 	data []float64
 }

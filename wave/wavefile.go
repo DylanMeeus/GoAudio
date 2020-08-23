@@ -2,6 +2,7 @@ package wave
 
 // representation of the wave file, used by reader.go and writer.go
 
+// Frame is a single float64 value of raw audio data
 type Frame float64
 
 /*
@@ -77,7 +78,7 @@ type WaveFmt struct {
 	ExtraParams    []byte // the actual extra params.
 }
 
-// waveData contains the raw sound data
+// WaveData contains the raw sound data
 type WaveData struct {
 	Subchunk2ID   []byte // Identifier of subchunk
 	Subchunk2Size int    // size of raw sound data

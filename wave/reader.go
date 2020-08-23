@@ -37,7 +37,7 @@ var (
 	}
 )
 
-// ParseFloatFrames for audio
+// ReadWaveFile parses a .wave file into a Wave struct
 func ReadWaveFile(f string) (Wave, error) {
 	// open as read-only file
 	file, err := os.Open(f)

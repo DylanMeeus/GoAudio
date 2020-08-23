@@ -93,6 +93,9 @@ func withBreakpointFile() {
 	// read the content file
 	infile := *input
 	wave, err := wav.ReadWaveFile(infile)
+	if err != nil {
+		panic(err)
+	}
 
 	// now we want to apply the pan per sample
 	// for this we need to know the time at each sample.

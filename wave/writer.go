@@ -7,6 +7,7 @@ import (
 	"math"
 )
 
+// Consts that appear in the .WAVE file format
 var (
 	ChunkID          = []byte{0x52, 0x49, 0x46, 0x46} // RIFF
 	BigEndianChunkID = []byte{0x52, 0x49, 0x46, 0x58} // RIFX
@@ -25,7 +26,7 @@ var (
 	}
 )
 
-// WriteSamples writes the slice to disk as a .wav file
+// WriteFrames writes the slice to disk as a .wav file
 // the WaveFmt metadata needs to be correct
 // WaveData and WaveHeader are inferred from the samples however..
 func WriteFrames(samples []Frame, wfmt WaveFmt, file string) error {

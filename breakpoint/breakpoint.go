@@ -10,13 +10,15 @@ import (
 	"strings"
 )
 
+// Breakpoints is a collection of Breakpoint (time:value) pairs
 type Breakpoints []Breakpoint
 
+// Breakpoint represents a time:value pair
 type Breakpoint struct {
 	Time, Value float64
 }
 
-// BreakpointsStream can be used to to treat breakpoints as a stream of data
+// BreakpointStream can be used to to treat breakpoints as a stream of data
 // Each 'tick' can manipulate the state of the breakpoint stream
 type BreakpointStream struct {
 	Breakpoints     Breakpoints
