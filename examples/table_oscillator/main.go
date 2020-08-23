@@ -77,7 +77,7 @@ func generate(dur int, shape synth.Shape, ampStream, freqStream *breakpoint.Brea
 	case synth.SINE:
 		lookupTable = synth.NewSineTable(8 * 1024)
 	case synth.TRIANGLE:
-		triangleTable, err := synth.NewTriangleTable(8*1024, 2)
+		triangleTable, err := synth.NewTriangleTable(8*1024, 4000)
 		if err != nil {
 			panic("Could not create triangle table")
 		}

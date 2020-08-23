@@ -2,6 +2,7 @@ package synthesizer
 
 import (
 	"errors"
+	"fmt"
 	"math"
 )
 
@@ -50,7 +51,8 @@ func NewTriangleTable(length int, nharmonics int) (*Gtable, error) {
 		for j := 0; j < length; j++ {
 			g.data[j] += amp * math.Cos(step*harmonic*float64(j))
 		}
-		harmonic += 2
+		fmt.Printf("harmonic %v\n", harmonic)
+		harmonic += 2 // triangle wave has only odd harmonics
 	}
 	// normalize the values to be in the [-1;1] range
 	g.data = normalize(g.data)

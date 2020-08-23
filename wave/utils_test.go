@@ -13,7 +13,7 @@ var (
 		{
 			Wave{},
 			0,
-			[][]Frame{[]Frame{}},
+			[][]Frame{{}},
 		},
 		{
 			Wave{
