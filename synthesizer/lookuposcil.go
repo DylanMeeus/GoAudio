@@ -34,46 +34,65 @@ func NewLookupOscillator(sr int, t *Gtable, phase float64) (*LookupOscillator, e
 // TruncateTick performs a lookup and truncates the value
 // index down (if the index for lookup = 10.5, return index 10)
 func (l *LookupOscillator) TruncateTick(freq float64) float64 {
-	index := l.curphase
-	if l.curfreq != freq {
-		l.curfreq = freq
-		l.incr = l.SizeOverSr * l.curfreq
+	return l.BatchTruncateTick(freq, 1)[0]
+}
+
+// BatchTruncateTick returns a slice of samples from the oscillator of the requested length
+func (l *LookupOscillator) BatchTruncateTick(freq float64, nframes int) []float64 {
+	out := make([]float64, nframes)
+	for i := 0; i < nframes; i++ {
+		index := l.curphase
+		if l.curfreq != freq {
+			l.curfreq = freq
+			l.incr = l.SizeOverSr * l.curfreq
+		}
+		curphase := l.curphase
+		curphase += l.incr
+		for curphase > float64(Len(l.Table)) {
+			curphase -= float64(Len(l.Table))
+		}
+		for curphase < 0.0 {
+			curphase += float64(Len(l.Table))
+		}
+		l.curphase = curphase
+		out[i] = l.Table.data[int(index)]
 	}
-	curphase := l.curphase
-	curphase += l.incr
-	for curphase > float64(Len(l.Table)) {
-		curphase -= float64(Len(l.Table))
-	}
-	for curphase < 0.0 {
-		curphase += float64(Len(l.Table))
-	}
-	l.curphase = curphase
-	return l.Table.data[int(index)]
+	return out
 }
 
 // InterpolateTick performs a lookup but interpolates the value if the
 // requested index does not appear in the table.
 func (l *LookupOscillator) InterpolateTick(freq float64) float64 {
-	baseIndex := int(l.curphase)
-	nextIndex := baseIndex + 1
-	if l.curfreq != freq {
-		l.curfreq = freq
-		l.incr = l.SizeOverSr * l.curfreq
-	}
-	curphase := l.curphase
-	frac := curphase - float64(baseIndex)
-	val := l.Table.data[baseIndex]
-	slope := l.Table.data[nextIndex] - val
-	val += frac * slope
-	curphase += l.incr
+	return l.BatchInterpolateTick(freq, 1)[0]
+}
 
-	for curphase > float64(Len(l.Table)) {
-		curphase -= float64(Len(l.Table))
-	}
-	for curphase < 0.0 {
-		curphase += float64(Len(l.Table))
-	}
+// BatchInterpolateTick performs a lookup for N frames, and interpolates the value if the
+// requested index does not appear in the table.
+func (l *LookupOscillator) BatchInterpolateTick(freq float64, nframes int) []float64 {
+	out := make([]float64, nframes)
+	for i := 0; i < nframes; i++ {
+		baseIndex := int(l.curphase)
+		nextIndex := baseIndex + 1
+		if l.curfreq != freq {
+			l.curfreq = freq
+			l.incr = l.SizeOverSr * l.curfreq
+		}
+		curphase := l.curphase
+		frac := curphase - float64(baseIndex)
+		val := l.Table.data[baseIndex]
+		slope := l.Table.data[nextIndex] - val
+		val += frac * slope
+		curphase += l.incr
 
-	l.curphase = curphase
-	return val
+		for curphase > float64(Len(l.Table)) {
+			curphase -= float64(Len(l.Table))
+		}
+		for curphase < 0.0 {
+			curphase += float64(Len(l.Table))
+		}
+
+		l.curphase = curphase
+		out[i] = val
+	}
+	return out
 }
