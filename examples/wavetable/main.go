@@ -21,7 +21,7 @@ func main() {
 	flag.Parse()
 
 	wfmt := wave.NewWaveFmt(1, 1, 44100, 16, nil)
-	triangles := synth.SquareTable(*harms, *duration*wfmt.SampleRate)
+	triangles := synth.TriangleTable(*harms, *duration*wfmt.SampleRate)
 	table := synth.NewGtable(triangles)
 
 	osc, err := synth.NewLookupOscillator(wfmt.SampleRate, table, 0.0)

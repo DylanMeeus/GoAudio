@@ -16,6 +16,10 @@ func Len(g *Gtable) int {
 	return len(g.data) - 1
 }
 
+func NewGtable(data []float64) *Gtable {
+	return &Gtable{data}
+}
+
 // NewSineTable returns a lookup table populated for sine-wave generation.
 func NewSineTable(length int) *Gtable {
 	g := &Gtable{}
