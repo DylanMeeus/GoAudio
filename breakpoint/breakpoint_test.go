@@ -74,6 +74,23 @@ var (
 			5,
 		},
 	}
+
+	anyTests = []struct {
+		in   Breakpoints
+		anyf func(Breakpoint) bool
+		out  bool
+	}{
+		{
+			in:   Breakpoints{Breakpoint{1, 0}, Breakpoint{2, 5}, Breakpoint{3, 10}},
+			anyf: func(b Breakpoint) bool { return b.Value > 5 },
+			out:  true,
+		},
+		{
+			in:   Breakpoints{Breakpoint{1, 0}, Breakpoint{2, 5}, Breakpoint{3, 10}},
+			anyf: func(b Breakpoint) bool { return b.Value > 15 },
+			out:  false,
+		},
+	}
 )
 
 func TestBreakpoint(t *testing.T) {
@@ -167,4 +184,16 @@ func TestValueAt(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestAny(t *testing.T) {
+	for _, test := range anyTests {
+		t.Run("", func(t *testing.T) {
+			out := test.in.Any(test.anyf)
+			if out != test.out {
+				t.Fatalf("Expected %v but got %v", test.out, out)
+			}
+		})
+	}
+
 }
