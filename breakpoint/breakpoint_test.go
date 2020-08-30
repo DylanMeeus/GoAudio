@@ -75,6 +75,28 @@ var (
 		},
 	}
 
+	minMaxTests = []struct {
+		in  []Breakpoint
+		min float64
+		max float64
+	}{
+		{
+			in:  []Breakpoint{},
+			min: 0.0,
+			max: 0.0,
+		},
+		{
+			in:  []Breakpoint{Breakpoint{0, 10}},
+			min: 10,
+			max: 10,
+		},
+		{
+			in:  []Breakpoint{Breakpoint{0, 10}, Breakpoint{1, 5}, Breakpoint{2, 3}},
+			min: 3,
+			max: 10,
+		},
+	}
+
 	anyTests = []struct {
 		in   Breakpoints
 		anyf func(Breakpoint) bool
@@ -192,6 +214,17 @@ func TestAny(t *testing.T) {
 			out := test.in.Any(test.anyf)
 			if out != test.out {
 				t.Fatalf("Expected %v but got %v", test.out, out)
+			}
+		})
+	}
+}
+
+func TestMinMax(t *testing.T) {
+	for _, test := range minMaxTests {
+		t.Run("", func(t *testing.T) {
+			min, max := MinMaxValue(test.in)
+			if min != test.min || max != test.max {
+				t.Fatalf("Expected (min,max) = (%v,%v) but got (%v,%v)", test.min, test.max, min, max)
 			}
 		})
 	}
