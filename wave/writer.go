@@ -30,7 +30,6 @@ var (
 // the WaveFmt metadata needs to be correct
 // WaveData and WaveHeader are inferred from the samples however..
 func WriteFrames(samples []Frame, wfmt WaveFmt, file string) error {
-
 	// construct this in reverse (Data -> Fmt -> Header)
 	// as Fmt needs info of Data, and Hdr needs to know entire length of file
 

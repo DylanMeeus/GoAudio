@@ -42,5 +42,17 @@ func TestRescaleFrames(t *testing.T) {
 			}
 		})
 	}
+}
 
+// TestWriteWave reads wave file and writes it, ensuring nothing is different between the two
+func TestWriteWave(t *testing.T) {
+	goldenfile := "./golden/maybe-next-time.wav"
+	wav, err := ReadWaveFile(goldenfile)
+	if err != nil {
+		t.Fatalf("Should be able to read wave file: %v", err)
+	}
+
+	if err := WriteFrames(wav.Frames, wav.WaveFmt, "output.wav"); err != nil {
+		t.Fatalf("Should be able to write file: %v", err)
+	}
 }
