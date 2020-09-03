@@ -1,12 +1,14 @@
 package synthesizer
 
 // ADSR creates an attack -> decay -> sustain -> release envelope
-func ADSR(maxamp, duration, attacktime, decaytime, sus, releasetime, controlrate float64, currenttime int) float64 {
+// time durations are passes as seconds.
+// returns the value + the current time
+func ADSR(maxamp, duration, attacktime, decaytime, sus, releasetime, controlrate float64, currentframe int) (float64, int) {
 	dur := duration * controlrate
 	at := attacktime * controlrate
 	dt := decaytime * controlrate
 	rt := releasetime * controlrate
-	cnt := float64(currenttime)
+	cnt := float64(currentframe)
 
 	amp := 0.0
 	if cnt < dur {
@@ -25,5 +27,5 @@ func ADSR(maxamp, duration, attacktime, decaytime, sus, releasetime, controlrate
 		}
 	}
 
-	return amp
+	return amp, currentframe + 1
 }
