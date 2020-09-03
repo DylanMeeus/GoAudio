@@ -3,7 +3,6 @@ package wave
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 	"io/ioutil"
 	"math"
 	"os"
@@ -47,14 +46,13 @@ func ReadWaveFile(f string) (Wave, error) {
 	defer file.Close()
 
 	// determine size?
-	info, _ := file.Stat()
-	fmt.Printf("size: %v\n", info.Size())
+	//info, _ := file.Stat()
+	//fmt.Printf("size: %v\n", info.Size())
 
 	data, err := ioutil.ReadFile(f)
 	if err != nil {
 		return Wave{}, err
 	}
-	fmt.Printf("Bytes read: %v\n", len(data))
 	hdr := readHeader(data)
 
 	wfmt := readFmt(data)
@@ -126,7 +124,6 @@ func readData(b []byte, wfmt WaveFmt) WaveData {
 
 	subsize := bits32ToInt(b[start+4 : start+8])
 	wd.Subchunk2Size = subsize
-	fmt.Printf("subchunk size: %v\n", wd.Subchunk2Size)
 
 	wd.RawData = b[start+8:]
 
@@ -203,22 +200,18 @@ func readFmt(b []byte) WaveFmt {
 func readHeader(b []byte) WaveHeader {
 	// the start of the bte slice..
 	hdr := WaveHeader{}
-	chunkID := b[0:4]
 	hdr.ChunkID = b[0:4]
-	fmt.Printf("chunkID: %v (%v) \n", chunkID, string(chunkID))
 	if string(hdr.ChunkID) != "RIFF" {
 		panic("Invalid file")
 	}
 
 	chunkSize := b[4:8]
-	fmt.Printf("chunkSize: %v\n", chunkSize)
 	var size uint32
 	buf := bytes.NewReader(chunkSize)
 	err := binary.Read(buf, binary.LittleEndian, &size)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Printf("%v\n", size)
 	hdr.ChunkSize = int(size) // easier to work with ints
 
 	format := b[8:12]
@@ -226,6 +219,5 @@ func readHeader(b []byte) WaveHeader {
 		panic("Format should be WAVE")
 	}
 	hdr.Format = string(format)
-	fmt.Printf("format: %v (%v)\n", format, hdr.Format)
 	return hdr
 }

@@ -2,7 +2,6 @@ package wave
 
 import (
 	"encoding/binary"
-	"fmt"
 	"io/ioutil"
 	"math"
 )
@@ -65,7 +64,6 @@ func framesToData(frames []Frame, wfmt WaveFmt) (WaveData, []byte) {
 	b := []byte{}
 	raw := samplesToRawData(frames, wfmt)
 
-	fmt.Printf("raw length: %v\n", len(raw))
 	// We receive frames but have to store the size of the samples
 	// The size of the samples is frames / channels..
 	subchunksize := (len(frames) * wfmt.NumChannels * wfmt.BitsPerSample) / 8
