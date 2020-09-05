@@ -36,3 +36,12 @@ func BatchSamples(data Wave, seconds float64) [][]Frame {
 	// depends on the samplerate, which is 'samples per second'
 	return batched
 }
+
+// FloatsToFrames turns a slice of float64 to a slice of frames
+func FloatsToFrames(fs []float64) []Frame {
+	frames := make([]Frame, len(fs))
+	for i, f := range fs {
+		frames[i] = Frame(f)
+	}
+	return frames
+}
