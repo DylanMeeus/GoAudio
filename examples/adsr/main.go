@@ -22,8 +22,8 @@ func main() {
 	frames := []wave.Frame{}
 	var adsrtime int
 	for i := 0; i < duration; i++ {
-		value, time := synth.ADSR(1, 10, 1, 1, 0.7, 5, float64(sr), adsrtime)
-		adsrtime = time
+		value := synth.ADSR(1, 10, 1, 1, 0.7, 5, float64(sr), adsrtime)
+		adsrtime++
 		frames = append(frames, wave.Frame(value*osc.Tick(440)))
 	}
 
