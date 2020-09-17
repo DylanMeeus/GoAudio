@@ -37,3 +37,31 @@ func Highpass(fs []float64, freq, delay, sr float64) []float64 {
 
 	return output
 }
+
+// Balance a signal (rescale output signal)
+func Balance(signal, comparator, delay []float64, frequency, samplerate float64) []float64 {
+	c := make([]float64, len(signal))
+	copy(signal, c)
+
+	costh := 2. - math.Cos(tau*frequency/samplerate)
+	coef := math.Sqrt(costh*costh-1.) - costh
+
+	for i, s := range signal {
+		ss := signal[i]
+		if signal[i] < 0 {
+			ss = -s
+		}
+		delay[0] = ss*(1+coef) - (delay[0] * coef)
+
+		if comparator[i] < 0 {
+			comparator[i] = -comparator[i]
+		}
+		delay[1] = comparator[i]*(1+coef) - (delay[1] * coef)
+		if delay[0] != 0 {
+			c[i] = s * (delay[0] / delay[1])
+		} else {
+			c[i] = s * delay[1]
+		}
+	}
+	return c
+}
