@@ -59,13 +59,17 @@ func ADSR(maxamp, duration, attacktime, decaytime, sus, releasetime, controlrate
 }
 
 // NoteToFrequency turns a given note & octave into a frequency
+// TODO: Allow for tuning systems other than Equal-Tempered A440?
 func NoteToFrequency(note string, octave int) float64 {
 	// clean the input
 	note = strings.ToLower(strings.TrimSpace(note))
-	// TODO: Allow for tuning systems other than Equal-Tempered A440?
 	ni := noteIndex[note]
+	if ni >= 3 {
+		// correct for octaves starting at C, not A.
+		octave--
+	}
 	FR := 440.
 	// we adjust the octave (-4) as the reference frequency is in the fourth octave
-	adjustedOctave := float64(octave - 4)
-	return FR * math.Pow(2, adjustedOctave+(float64(ni)/12.))
+	// this effectively allows us to generate any octave above or below the reference octave
+	return FR * math.Pow(2, float64(octave-4)+(float64(ni)/12.))
 }
