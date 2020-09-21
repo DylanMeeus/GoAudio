@@ -2,7 +2,6 @@ package synthesizer
 
 import (
 	"errors"
-	"fmt"
 	"math"
 )
 
