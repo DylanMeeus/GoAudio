@@ -59,8 +59,9 @@ func ADSR(maxamp, duration, attacktime, decaytime, sus, releasetime, controlrate
 }
 
 // NoteToFrequency turns a given note & octave into a frequency
-// TODO: Allow for tuning systems other than Equal-Tempered A440?
+// using Equal-Tempered tuning with reference pitch = A440
 func NoteToFrequency(note string, octave int) float64 {
+	// TODO: Allow for tuning systems other than Equal-Tempered A440?
 	// clean the input
 	note = strings.ToLower(strings.TrimSpace(note))
 	ni := noteIndex[note]
