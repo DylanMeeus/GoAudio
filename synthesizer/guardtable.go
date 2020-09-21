@@ -55,7 +55,6 @@ func NewTriangleTable(length int, nharmonics int) (*Gtable, error) {
 		for j := 0; j < length; j++ {
 			g.data[j] += amp * math.Cos(step*harmonic*float64(j))
 		}
-		fmt.Printf("harmonic %v\n", harmonic)
 		harmonic += 2 // triangle wave has only odd harmonics
 	}
 	// normalize the values to be in the [-1;1] range
