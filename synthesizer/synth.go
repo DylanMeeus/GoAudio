@@ -77,7 +77,7 @@ func NoteToFrequency(note string, octave int) float64 {
 }
 
 // parseNoteOctave returns the note + octave value
-func parseNoteOctave(note string) (string, int, err) {
+func parseNoteOctave(note string) (string, int, error) {
 	note = strings.ToLower(note)
 	s := struct{}{}
 	valid := map[string]interface{}{"a": s, "b": s, "c": s, "d": s, "e": s, "f": s, "g": s, "#": s}

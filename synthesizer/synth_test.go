@@ -60,7 +60,10 @@ func TestNoteToFrequency(t *testing.T) {
 func TestParseNoteFrequency(t *testing.T) {
 	for _, test := range parseNoteFrequencyTests {
 		t.Run("", func(t *testing.T) {
-			freq := synth.ParseNoteToFrequency(test.in)
+			freq, err := synth.ParseNoteToFrequency(test.in)
+			if err != nil {
+				t.Fatalf("Unexpected error occurred: %v", err)
+			}
 			if !floatFuzzyEquals(freq, test.out) {
 				t.Fatalf("Expected %v but got %v for (%s)", test.out, freq, test.in)
 			}
