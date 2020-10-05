@@ -1,7 +1,7 @@
 # GoAudio 🎶
-
 [![Build
 Status](https://travis-ci.com/DylanMeeus/GoAudio.svg?branch=master)](https://travis-ci.com/DylanMeeus/GoAudio)
+[![Mentioned in Awesome Go](https://awesome.re/mentioned-badge.svg)](https://github.com/avelino/awesome-go)
 
 
 GoAudio is an audio processing library, currently supporting `WAVE` files, although some tools such
