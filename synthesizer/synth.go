@@ -2,6 +2,7 @@ package synthesizer
 
 import (
 	"math"
+	"strconv"
 	"strings"
 )
 
@@ -73,4 +74,43 @@ func NoteToFrequency(note string, octave int) float64 {
 	// we adjust the octave (-4) as the reference frequency is in the fourth octave
 	// this effectively allows us to generate any octave above or below the reference octave
 	return FR * math.Pow(2, float64(octave-4)+(float64(ni)/12.))
+}
+
+// parseNoteOctave returns the note + octave value
+func parseNoteOctave(note string) (string, int, err) {
+	note = strings.ToLower(note)
+	s := struct{}{}
+	valid := map[string]interface{}{"a": s, "b": s, "c": s, "d": s, "e": s, "f": s, "g": s, "#": s}
+	notePart := strings.Map(func(r rune) rune {
+		if _, ok := valid[string(r)]; !ok {
+			return rune(-1)
+		}
+		return r
+	}, note)
+
+	// TODO: determine string + number bit
+	digits := map[string]interface{}{"0": s, "1": s, "2": s, "3": s, "4": s, "5": s, "6": s, "7": s, "8": s, "9": s}
+	digitPart := strings.Map(func(r rune) rune {
+		if _, ok := digits[string(r)]; !ok {
+			return rune(-1)
+		}
+		return r
+	}, note)
+
+	octave, err := strconv.Atoi(digitPart)
+	if err != nil {
+		return "", 0, err
+	}
+
+	return notePart, octave, nil
+}
+
+// ParseNoteToFrequency tries to parse a string representation of a note+octave (e.g C#4)
+// and will return a float64 frequency value using 'NoteToFrequency'
+func ParseNoteToFrequency(note string) (float64, error) {
+	nt, oct, err := parseNoteOctave(note)
+	if err != nil {
+		return -1, err
+	}
+	return NoteToFrequency(nt, oct), nil
 }

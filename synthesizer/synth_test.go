@@ -22,6 +22,24 @@ var (
 		{"a", 4, 440.},
 		{"a", 2, 110.},
 	}
+
+	parseNoteFrequencyTests = []struct {
+		in  string
+		out float64
+	}{
+		{
+			"g2",
+			98.,
+		},
+		{
+			"a4",
+			440.,
+		},
+		{
+			"a7",
+			3520.,
+		},
+	}
 )
 
 // TestNoteToFrequency tests a selection of notes + octaves and verifies their frequency
@@ -31,6 +49,20 @@ func TestNoteToFrequency(t *testing.T) {
 			freq := synth.NoteToFrequency(test.note, test.octave)
 			if !floatFuzzyEquals(freq, test.output) {
 				t.Fatalf("Expected %v but got %v for (%s%v)", test.output, freq, test.note, test.octave)
+			}
+		})
+
+	}
+}
+
+// TestParseNoteFrequency tests a selection of strings containing note+octave and ensures that the
+// output is the expected frequency
+func TestParseNoteFrequency(t *testing.T) {
+	for _, test := range parseNoteFrequencyTests {
+		t.Run("", func(t *testing.T) {
+			freq := synth.ParseNoteToFrequency(test.in)
+			if !floatFuzzyEquals(freq, test.out) {
+				t.Fatalf("Expected %v but got %v for (%s)", test.out, freq, test.in)
 			}
 		})
 
