@@ -92,13 +92,12 @@ func parseNoteOctave(note string) (string, int, error) {
 		return r
 	}, note)
 
-	// TODO: determine string + number bit
 	digitPart := strings.Map(func(r rune) rune {
 		if _, ok := digits[string(r)]; !ok {
 			return rune(-1)
 		}
 		return r
-	}, note)
+	}, note[len(notePart):])
 
 	octave, err := strconv.Atoi(digitPart)
 	if err != nil {
