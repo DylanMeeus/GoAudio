@@ -29,6 +29,12 @@ var (
 	}
 )
 
+var (
+	s      = struct{}{}
+	valid  = map[string]interface{}{"a": s, "b": s, "c": s, "d": s, "e": s, "f": s, "g": s, "#": s}
+	digits = map[string]interface{}{"0": s, "1": s, "2": s, "3": s, "4": s, "5": s, "6": s, "7": s, "8": s, "9": s}
+)
+
 // ADSR creates an attack -> decay -> sustain -> release envelope
 // time durations are passes as seconds.
 // returns the value + the current time
@@ -79,8 +85,6 @@ func NoteToFrequency(note string, octave int) float64 {
 // parseNoteOctave returns the note + octave value
 func parseNoteOctave(note string) (string, int, error) {
 	note = strings.ToLower(note)
-	s := struct{}{}
-	valid := map[string]interface{}{"a": s, "b": s, "c": s, "d": s, "e": s, "f": s, "g": s, "#": s}
 	notePart := strings.Map(func(r rune) rune {
 		if _, ok := valid[string(r)]; !ok {
 			return rune(-1)
@@ -88,14 +92,12 @@ func parseNoteOctave(note string) (string, int, error) {
 		return r
 	}, note)
 
-	// TODO: determine string + number bit
-	digits := map[string]interface{}{"0": s, "1": s, "2": s, "3": s, "4": s, "5": s, "6": s, "7": s, "8": s, "9": s}
 	digitPart := strings.Map(func(r rune) rune {
 		if _, ok := digits[string(r)]; !ok {
 			return rune(-1)
 		}
 		return r
-	}, note)
+	}, note[len(notePart):])
 
 	octave, err := strconv.Atoi(digitPart)
 	if err != nil {
