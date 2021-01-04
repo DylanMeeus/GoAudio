@@ -72,6 +72,21 @@ func TestParseNoteFrequency(t *testing.T) {
 	}
 }
 
+// BenchmarkNoteToFrequency benchmarks the lookup of a frequency given a note & string
+func BenchmarkNoteToFrequency(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		synth.NoteToFrequency("A", 4)
+	}
+}
+
+// BenchmarkParseNoteFrequency benchmarks the 'translation' of a note/octave given as a string
+// to a frequency
+func BenchmarkParseNoteFrequency(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		synth.ParseNoteToFrequency("A4")
+	}
+}
+
 // are the floats equal, within some grace region?
 // to deal with floating point representation errors
 func floatFuzzyEquals(f1, f2 float64) bool {
