@@ -136,8 +136,6 @@ func parseRawData(wfmt WaveFmt, rawdata []byte) []Frame {
 	// TODO: sanity-check that this is a power of 2? I think only those sample sizes are
 	// possible
 
-	// TODO: READ AS INT??????
-
 	frames := []Frame{}
 	// read the chunks
 	for i := 0; i < len(rawdata); i += bytesSampleSize {
