@@ -57,24 +57,39 @@ var (
 
 // TestReadFile reads a golden file and ensures that is parsed as expected
 func TestReadFile(t *testing.T) {
+	tests := []struct {
+		fileName   string
+		sampleRate int
+		channels   int
+	}{
+		{
+			fileName:   "./golden/maybe-next-time.wav",
+			sampleRate: 44100,
+			channels:   2,
+		},
+		{
+			fileName:   "./golden/c2-24bit.wav",
+			sampleRate: 44100,
+			channels:   2,
+		},
+	}
 	defer func() {
 		if r := recover(); r != nil {
 			t.Fatalf("Should not have panic'd!\n%v", r)
 		}
 	}()
-	goldenfile := "./golden/maybe-next-time.wav"
-	wav, err := ReadWaveFile(goldenfile)
-	if err != nil {
-		t.Fatalf("Should be able to read wave file: %v", err)
-	}
 
-	// assert that the wav file looks as expected.
-	if wav.SampleRate != 44100 {
-		t.Fatalf("Expected SR 44100, got: %v", wav.SampleRate)
-	}
-
-	if wav.NumChannels != 2 {
-		t.Fatalf("Expected 2 channels, got: %v", wav.NumChannels)
+	for _, tt := range tests {
+		wav, err := ReadWaveFile(tt.fileName)
+		if err != nil {
+			t.Fatalf("Should be able to read wave file: %v", err)
+		}
+		if wav.SampleRate != tt.sampleRate {
+			t.Fatalf("Expected SR %d, got: %v", tt.sampleRate, wav.SampleRate)
+		}
+		if wav.NumChannels != tt.channels {
+			t.Fatalf("Expected %d channels, got: %v", tt.channels, wav.NumChannels)
+		}
 	}
 }
 

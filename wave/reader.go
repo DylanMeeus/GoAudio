@@ -18,11 +18,13 @@ var (
 	// figure out which 'to int' function to use..
 	byteSizeToIntFunc = map[int]bytesToIntF{
 		16: bits16ToInt,
+		24: bits24ToInt,
 		32: bits32ToInt,
 	}
 
 	byteSizeToFloatFunc = map[int]bytesToFloatF{
 		16: bitsToFloat,
+		24: bitsToFloat,
 		32: bitsToFloat,
 		64: bitsToFloat,
 	}
@@ -31,6 +33,7 @@ var (
 	maxValues = map[int]int{
 		8:  math.MaxInt8,
 		16: math.MaxInt16,
+		24: 1<<23 - 1,
 		32: math.MaxInt32,
 		64: math.MaxInt64,
 	}
@@ -75,6 +78,8 @@ func bitsToFloat(b []byte) float64 {
 	switch len(b) {
 	case 2:
 		bits = uint64(binary.LittleEndian.Uint16(b))
+	case 3:
+		bits = uint64(binary.LittleEndian.Uint32(b))
 	case 4:
 		bits = uint64(binary.LittleEndian.Uint32(b))
 	case 8:
@@ -98,6 +103,21 @@ func bits16ToInt(b []byte) int {
 		panic(err)
 	}
 	return int(payload) // easier to work with ints
+}
+
+// see: https://stackoverflow.com/questions/36631967/24-to-32-bit-conversion-in-java
+func bits24ToInt(b []byte) int {
+	if len(b) != 3 {
+		panic("Expected size 3!")
+	}
+	var payload int
+	payload = int(int32(b[0]) | int32(b[1])<<8 | int32(b[2])<<16)
+	if (payload & 0x800000) > 0 {
+		payload |= 0xff0000
+	} else {
+		payload &= 0xffffff
+	}
+	return payload
 }
 
 // turn a 32-bit byte array into an int
