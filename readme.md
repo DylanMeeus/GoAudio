@@ -10,9 +10,9 @@ library for storing the data and using GoAudio only as a means to generate the w
 
 # Features
 
-- [Wave file handling](github.com/DylanMeeus/GoAudio/wave)(READ / WRITE Wave files)
-- [Synthesizer](github.com/DylanMeeus/GoAudio/synthesizer) - Create different waveforms using different types of oscillators
-- [Breakpoints](github.com/DylanMeeus/GoAudio/breakpoint) (create automation tracks / envelopes)
+- [Wave file handling](wave)(READ / WRITE Wave files)
+- [Synthesizer](synthesizer) - Create different waveforms using different types of oscillators
+- [Breakpoints](breakpoint) (create automation tracks / envelopes)
 
 
 # Blog
