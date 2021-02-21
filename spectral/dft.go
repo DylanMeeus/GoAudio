@@ -9,7 +9,7 @@ const (
 	tau = 2. * math.Pi
 )
 
-// dft is a discrete fourier transformation on the input frames
+// DFT is a discrete fourier transformation on the input frames
 func DFT(input []wave.Frame) []complex128 {
 	N := len(input)
 
