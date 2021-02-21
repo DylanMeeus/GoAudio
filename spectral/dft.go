@@ -10,7 +10,7 @@ const (
 )
 
 // dft is a discrete fourier transformation on the input frames
-func dft(input []wave.Frame) []complex128 {
+func DFT(input []wave.Frame) []complex128 {
 	N := len(input)
 
 	output := make([]complex128, len(input))
