@@ -2,8 +2,9 @@ package wave
 
 import (
 	"encoding/binary"
-	"io/ioutil"
+	"io"
 	"math"
+	"os"
 )
 
 // Consts that appear in the .WAVE file format
@@ -29,21 +30,38 @@ var (
 // the WaveFmt metadata needs to be correct
 // WaveData and WaveHeader are inferred from the samples however..
 func WriteFrames(samples []Frame, wfmt WaveFmt, file string) error {
-	// construct this in reverse (Data -> Fmt -> Header)
-	// as Fmt needs info of Data, and Hdr needs to know entire length of file
+	return WriteWaveFile(samples, wfmt, file)
+}
 
-	// write chunkSize
-	bits := []byte{}
+func WriteWaveFile(samples []Frame, wfmt WaveFmt, file string) error {
+	f, err := os.Create(file)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
 
+	return WriteWaveToWriter(samples, wfmt, f)
+}
+
+func WriteWaveToWriter(samples []Frame, wfmt WaveFmt, writer io.Writer) error {
 	wfb := fmtToBytes(wfmt)
 	data, databits := framesToData(samples, wfmt)
 	hdr := createHeader(data)
 
-	bits = append(bits, hdr...)
-	bits = append(bits, wfb...)
-	bits = append(bits, databits...)
+	_, err := writer.Write(hdr)
+	if err != nil {
+		return err
+	}
+	_, err = writer.Write(wfb)
+	if err != nil {
+		return err
+	}
+	_, err = writer.Write(databits)
+	if err != nil {
+		return err
+	}
 
-	return ioutil.WriteFile(file, bits, 0644)
+	return nil
 }
 
 func int16ToBytes(i int) []byte {
