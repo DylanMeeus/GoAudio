@@ -3,6 +3,7 @@ package wave
 import (
 	"bytes"
 	"encoding/binary"
+	"io"
 	"io/ioutil"
 	"math"
 	"os"
@@ -45,11 +46,12 @@ func ReadWaveFile(f string) (Wave, error) {
 	}
 	defer file.Close()
 
-	// determine size?
-	//info, _ := file.Stat()
-	//fmt.Printf("size: %v\n", info.Size())
+	return ReadWaveFromReader(file)
+}
 
-	data, err := ioutil.ReadFile(f)
+// ReadWaveFromReader parses an io.Reader into a Wave struct
+func ReadWaveFromReader(reader io.Reader) (Wave, error) {
+	data, err := ioutil.ReadAll(reader)
 	if err != nil {
 		return Wave{}, err
 	}
