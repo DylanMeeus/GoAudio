@@ -47,7 +47,7 @@ func HFFT(input []wave.Frame, freqs []complex128, n, step int) {
 	h := n / 2
 
 	HFFT(input, freqs, h, 2*step)
-	HFFT(input[step:], freqs[step:], h, 2*step)
+	HFFT(input[step:], freqs[h:], h, 2*step)
 
 	for k := 0; k < h; k++ {
 		a := -2 * math.Pi * float64(k) * float64(n)
