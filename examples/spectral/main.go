@@ -16,7 +16,6 @@ func main() {
 		panic(err)
 	}
 	fmt.Println(2 * math.Pi)
-	c128 := audiomath.DFT(w.Frames)
-	//fmt.Printf("%v\n", c128)
-	_ = c128
+	c128 := audiomath.FFT(w.Frames)
+	fmt.Printf("%v\n", c128)
 }
