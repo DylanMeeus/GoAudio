@@ -114,6 +114,7 @@ func bits24ToInt(b []byte) int {
 	if len(b) != 3 {
 		panic("Expected size 3!")
 	}
+	// add some padding to turn a 24-bit integer into a 32-bit integer
 	b = append([]byte{0x00}, b...)
 	var payload int32
 	buf := bytes.NewReader(b)

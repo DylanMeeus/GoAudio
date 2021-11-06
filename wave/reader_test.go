@@ -1,7 +1,6 @@
 package wave
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -107,5 +106,12 @@ func TestJunkChunkFile(t *testing.T) {
 	if err != nil {
 		t.Fatalf("should be able to read wave file: %v", err)
 	}
-	fmt.Printf("%v\n", wav)
+	// assert that the wav file looks as expected.
+	if wav.SampleRate != 48000 {
+		t.Fatalf("Expected SR 44100, got: %v", wav.SampleRate)
+	}
+
+	if wav.NumChannels != 2 {
+		t.Fatalf("Expected 2 channels, got: %v", wav.NumChannels)
+	}
 }
