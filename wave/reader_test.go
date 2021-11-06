@@ -1,6 +1,7 @@
 package wave
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -65,7 +66,7 @@ func TestReadFile(t *testing.T) {
 	goldenfile := "./golden/maybe-next-time.wav"
 	wav, err := ReadWaveFile(goldenfile)
 	if err != nil {
-		t.Fatalf("Should be able to read wave file: %v", err)
+		t.Fatalf("should be able to read wave file: %v", err)
 	}
 
 	// assert that the wav file looks as expected.
@@ -87,4 +88,22 @@ func TestScaleFrames(t *testing.T) {
 			}
 		})
 	}
+}
+
+// TestJunkChunkFile tests that .wave files with a JUNK chunk can be read
+// https://www.daubnet.com/en/file-format-riff
+func TestJunkChunkFile(t *testing.T) {
+	defer func() {
+		if r := recover(); r != nil {
+			t.Fatalf("Should not have panic'd reading JUNK files\n%v", r)
+		}
+	}()
+
+	goldenfile := "./golden/chunk_junk.wav"
+
+	wav, err := ReadWaveFile(goldenfile)
+	if err != nil {
+		t.Fatalf("should be able to read wave file: %v", err)
+	}
+	fmt.Printf("%v\n", wav)
 }

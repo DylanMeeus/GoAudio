@@ -3,10 +3,12 @@ package wave
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"math"
 	"os"
+	"strings"
 )
 
 // type aliases for conversion functions
@@ -55,6 +57,9 @@ func ReadWaveFromReader(reader io.Reader) (Wave, error) {
 	if err != nil {
 		return Wave{}, err
 	}
+
+	data = deleteJunk(data)
+
 	hdr := readHeader(data)
 
 	wfmt := readFmt(data)
@@ -154,6 +159,31 @@ func scaleFrame(unscaled, bits int) Frame {
 	maxV := maxValues[bits]
 	return Frame(float64(unscaled) / float64(maxV))
 
+}
+
+// deleteJunk will remove the JUNK chunks if they are present
+func deleteJunk(b []byte) []byte {
+	var junkStart, junkEnd int
+
+	for i := 0; i < len(b)-4; i++ {
+		if strings.ToLower(string(b[i:i+4])) == "junk" {
+			junkStart = i
+		}
+
+		if strings.ToLower(string(b[i:i+3])) == "fmt" {
+			junkEnd = i
+		}
+	}
+
+	if junkStart != 0 {
+		fmt.Printf("slicing between %v and %v\n", junkStart, junkEnd)
+		sanitized := b[0:junkStart]
+		sanitized = append(sanitized, b[junkEnd:]...)
+		fmt.Println("HERE")
+		return sanitized
+	}
+
+	return b
 }
 
 // readFmt parses the FMT portion of the WAVE file
