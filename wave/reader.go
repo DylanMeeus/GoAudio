@@ -3,7 +3,6 @@ package wave
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"math"
@@ -59,9 +58,7 @@ func ReadWaveFromReader(reader io.Reader) (Wave, error) {
 		return Wave{}, err
 	}
 
-	fmt.Printf("data size: %v\n", len(data))
 	data = deleteJunk(data)
-	fmt.Printf("data size: %v\n", len(data))
 
 	hdr := readHeader(data)
 
@@ -144,8 +141,6 @@ func bits32ToInt(b []byte) int {
 func readData(b []byte, wfmt WaveFmt) WaveData {
 	wd := WaveData{}
 
-	fmt.Printf("extra params: %v\n", wfmt.ExtraParamSize)
-
 	start := 36 + wfmt.ExtraParamSize
 	subchunk2ID := b[start : start+4]
 	wd.Subchunk2ID = subchunk2ID
@@ -164,19 +159,14 @@ func parseRawData(wfmt WaveFmt, rawdata []byte) []Frame {
 	// TODO: sanity-check that this is a power of 2? I think only those sample sizes are
 	// possible
 
-	fmt.Printf("bytes per sample: %v\n", bytesSampleSize)
-
 	frames := []Frame{}
 	// read the chunks
-	fmt.Println("raw")
 	for i := 0; i < len(rawdata); i += bytesSampleSize {
 		rawFrame := rawdata[i : i+bytesSampleSize]
 		unscaledFrame := byteSizeToIntFunc[wfmt.BitsPerSample](rawFrame)
 		scaled := scaleFrame(unscaledFrame, wfmt.BitsPerSample)
 		frames = append(frames, scaled)
 	}
-	fmt.Println("end raw")
-
 	return frames
 }
 
@@ -205,7 +195,6 @@ func deleteJunk(b []byte) []byte {
 		copy(cpy, b[0:junkStart])
 		cpy = append(cpy, b[junkEnd:]...)
 		return cpy
-		fmt.Println("HERE")
 	}
 
 	return b

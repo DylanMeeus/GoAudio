@@ -65,7 +65,7 @@ func TestReadFile(t *testing.T) {
 	goldenfile := "./golden/maybe-next-time.wav"
 	wav, err := ReadWaveFile(goldenfile)
 	if err != nil {
-		t.Fatalf("should be able to read wave file: %v", err)
+		t.Fatalf("Should be able to read wave file: %v", err)
 	}
 
 	// assert that the wav file looks as expected.
