@@ -1,6 +1,7 @@
 package wave
 
 import (
+	"runtime/debug"
 	"testing"
 )
 
@@ -92,13 +93,11 @@ func TestScaleFrames(t *testing.T) {
 // TestJunkChunkFile tests that .wave files with a JUNK chunk can be read
 // https://www.daubnet.com/en/file-format-riff
 func TestJunkChunkFile(t *testing.T) {
-	/*
-		defer func() {
-			if r := recover(); r != nil {
-				t.Fatalf("Should not have panic'd reading JUNK files\n%v", string(debug.Stack()))
-			}
-		}()
-	*/
+	defer func() {
+		if r := recover(); r != nil {
+			t.Fatalf("Should not have panic'd reading JUNK files\n%v", string(debug.Stack()))
+		}
+	}()
 
 	goldenfile := "./golden/chunk_junk.wav"
 
