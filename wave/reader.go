@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"math"
 	"os"
+	"strings"
 )
 
 // type aliases for conversion functions
@@ -19,6 +20,7 @@ var (
 	// figure out which 'to int' function to use..
 	byteSizeToIntFunc = map[int]bytesToIntF{
 		16: bits16ToInt,
+		24: bits24ToInt,
 		32: bits32ToInt,
 	}
 
@@ -55,6 +57,9 @@ func ReadWaveFromReader(reader io.Reader) (Wave, error) {
 	if err != nil {
 		return Wave{}, err
 	}
+
+	data = deleteJunk(data)
+
 	hdr := readHeader(data)
 
 	wfmt := readFmt(data)
@@ -93,6 +98,22 @@ func bits16ToInt(b []byte) int {
 		panic("Expected size 4!")
 	}
 	var payload int16
+	buf := bytes.NewReader(b)
+	err := binary.Read(buf, binary.LittleEndian, &payload)
+	if err != nil {
+		// TODO: make safe
+		panic(err)
+	}
+	return int(payload) // easier to work with ints
+}
+
+func bits24ToInt(b []byte) int {
+	if len(b) != 3 {
+		panic("Expected size 3!")
+	}
+	// add some padding to turn a 24-bit integer into a 32-bit integer
+	b = append([]byte{0x00}, b...)
+	var payload int32
 	buf := bytes.NewReader(b)
 	err := binary.Read(buf, binary.LittleEndian, &payload)
 	if err != nil {
@@ -146,7 +167,6 @@ func parseRawData(wfmt WaveFmt, rawdata []byte) []Frame {
 		scaled := scaleFrame(unscaledFrame, wfmt.BitsPerSample)
 		frames = append(frames, scaled)
 	}
-
 	return frames
 }
 
@@ -154,6 +174,30 @@ func scaleFrame(unscaled, bits int) Frame {
 	maxV := maxValues[bits]
 	return Frame(float64(unscaled) / float64(maxV))
 
+}
+
+// deleteJunk will remove the JUNK chunks if they are present
+func deleteJunk(b []byte) []byte {
+	var junkStart, junkEnd int
+
+	for i := 0; i < len(b)-4; i++ {
+		if strings.ToLower(string(b[i:i+4])) == "junk" {
+			junkStart = i
+		}
+
+		if strings.ToLower(string(b[i:i+3])) == "fmt" {
+			junkEnd = i
+		}
+	}
+
+	if junkStart != 0 {
+		cpy := make([]byte, len(b[0:junkStart]))
+		copy(cpy, b[0:junkStart])
+		cpy = append(cpy, b[junkEnd:]...)
+		return cpy
+	}
+
+	return b
 }
 
 // readFmt parses the FMT portion of the WAVE file
