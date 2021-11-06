@@ -21,6 +21,7 @@ var (
 	// figure out which 'to int' function to use..
 	byteSizeToIntFunc = map[int]bytesToIntF{
 		16: bits16ToInt,
+		24: bits24ToInt,
 		32: bits32ToInt,
 	}
 
@@ -58,7 +59,9 @@ func ReadWaveFromReader(reader io.Reader) (Wave, error) {
 		return Wave{}, err
 	}
 
+	fmt.Printf("data size: %v\n", len(data))
 	data = deleteJunk(data)
+	fmt.Printf("data size: %v\n", len(data))
 
 	hdr := readHeader(data)
 
@@ -107,6 +110,21 @@ func bits16ToInt(b []byte) int {
 	return int(payload) // easier to work with ints
 }
 
+func bits24ToInt(b []byte) int {
+	if len(b) != 3 {
+		panic("Expected size 3!")
+	}
+	b = append([]byte{0x00}, b...)
+	var payload int32
+	buf := bytes.NewReader(b)
+	err := binary.Read(buf, binary.LittleEndian, &payload)
+	if err != nil {
+		// TODO: make safe
+		panic(err)
+	}
+	return int(payload) // easier to work with ints
+}
+
 // turn a 32-bit byte array into an int
 func bits32ToInt(b []byte) int {
 	if len(b) != 4 {
@@ -124,6 +142,8 @@ func bits32ToInt(b []byte) int {
 
 func readData(b []byte, wfmt WaveFmt) WaveData {
 	wd := WaveData{}
+
+	fmt.Printf("extra params: %v\n", wfmt.ExtraParamSize)
 
 	start := 36 + wfmt.ExtraParamSize
 	subchunk2ID := b[start : start+4]
@@ -143,14 +163,18 @@ func parseRawData(wfmt WaveFmt, rawdata []byte) []Frame {
 	// TODO: sanity-check that this is a power of 2? I think only those sample sizes are
 	// possible
 
+	fmt.Printf("bytes per sample: %v\n", bytesSampleSize)
+
 	frames := []Frame{}
 	// read the chunks
+	fmt.Println("raw")
 	for i := 0; i < len(rawdata); i += bytesSampleSize {
 		rawFrame := rawdata[i : i+bytesSampleSize]
 		unscaledFrame := byteSizeToIntFunc[wfmt.BitsPerSample](rawFrame)
 		scaled := scaleFrame(unscaledFrame, wfmt.BitsPerSample)
 		frames = append(frames, scaled)
 	}
+	fmt.Println("end raw")
 
 	return frames
 }
@@ -176,11 +200,11 @@ func deleteJunk(b []byte) []byte {
 	}
 
 	if junkStart != 0 {
-		fmt.Printf("slicing between %v and %v\n", junkStart, junkEnd)
-		sanitized := b[0:junkStart]
-		sanitized = append(sanitized, b[junkEnd:]...)
+		cpy := make([]byte, len(b[0:junkStart]))
+		copy(cpy, b[0:junkStart])
+		cpy = append(cpy, b[junkEnd:]...)
+		return cpy
 		fmt.Println("HERE")
-		return sanitized
 	}
 
 	return b
