@@ -107,7 +107,7 @@ func TestJunkChunkFile(t *testing.T) {
 	}
 	// assert that the wav file looks as expected.
 	if wav.SampleRate != 48000 {
-		t.Fatalf("Expected SR 44100, got: %v", wav.SampleRate)
+		t.Fatalf("Expected SR 48000, got: %v", wav.SampleRate)
 	}
 
 	if wav.NumChannels != 2 {
