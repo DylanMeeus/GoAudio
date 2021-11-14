@@ -22,6 +22,7 @@ var (
 	// intsToBytesFm to map X-bit int to byte functions
 	intsToBytesFm = map[int]intsToBytesFunc{
 		16: int16ToBytes,
+		24: int24ToBytes,
 		32: int32ToBytes,
 	}
 )
@@ -68,6 +69,14 @@ func int16ToBytes(i int) []byte {
 	b := make([]byte, 2)
 	in := uint16(i)
 	binary.LittleEndian.PutUint16(b, in)
+	return b
+}
+
+func int24ToBytes(i int) []byte {
+	b := make([]byte, 3)
+	b[0] = byte(i & 0xff)
+	b[1] = byte(i & (0xff << 8))
+	b[2] = byte(i & (0xff << 16))
 	return b
 }
 

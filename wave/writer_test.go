@@ -56,3 +56,16 @@ func TestWriteWave(t *testing.T) {
 		t.Fatalf("Should be able to write file: %v", err)
 	}
 }
+
+// TestWriteWave reads wave file and writes it, ensuring nothing is different between the two
+func TestWrite24BitWave(t *testing.T) {
+	goldenfile := "./golden/24bit.wav"
+	wav, err := ReadWaveFile(goldenfile)
+	if err != nil {
+		t.Fatalf("Should be able to read 24-bit wave file: %v", err)
+	}
+
+	if err := WriteFrames(wav.Frames, wav.WaveFmt, "output24.wav"); err != nil {
+		t.Fatalf("Should be able to write file: %v", err)
+	}
+}
