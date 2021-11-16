@@ -34,6 +34,7 @@ var (
 	maxValues = map[int]int{
 		8:  math.MaxInt8,
 		16: math.MaxInt16,
+		24: math.MaxInt32 >> 8,
 		32: math.MaxInt32,
 		64: math.MaxInt64,
 	}
@@ -143,6 +144,18 @@ func readData(b []byte, wfmt WaveFmt) WaveData {
 
 	start := 36 + wfmt.ExtraParamSize
 	subchunk2ID := b[start : start+4]
+
+	if !bytes.Equal(subchunk2ID, []byte{0x64, 0x61, 0x74, 0x61}) {
+		// some files put "unknown" chunks between FMT and DATA, we can manually
+		// seek at this point to see if "data" does appear somewhere..
+		for i := 0; i < len(b)-4; i++ {
+			if bytes.Equal(b[i:i+4], []byte{0x64, 0x61, 0x74, 0x61}) {
+				subchunk2ID = b[i : i+4]
+				break
+			}
+		}
+
+	}
 	wd.Subchunk2ID = subchunk2ID
 
 	subsize := bits32ToInt(b[start+4 : start+8])
@@ -233,7 +246,8 @@ func readFmt(b []byte) WaveFmt {
 	if subchunksize != 16 {
 		// only for compressed files (non-PCM)
 		extraSize := bits16ToInt(b[36:38])
-		wfmt.ExtraParamSize = extraSize
+		//wfmt.ExtraParamSize = extraSize
+		wfmt.ExtraParamSize = subchunksize - 16
 		wfmt.ExtraParams = b[38 : 38+extraSize]
 	}
 
