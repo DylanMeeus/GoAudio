@@ -247,7 +247,7 @@ func readFmt(b []byte) WaveFmt {
 		// only for compressed files (non-PCM)
 		extraSize := bits16ToInt(b[36:38])
 		//wfmt.ExtraParamSize = extraSize
-		wfmt.ExtraParamSize = subchunksize - 16
+		wfmt.ExtraParamSize = extraSize
 		wfmt.ExtraParams = b[38 : 38+extraSize]
 	}
 

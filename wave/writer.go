@@ -152,6 +152,7 @@ func fmtToBytes(wfmt WaveFmt) []byte {
 	br := int32ToBytes(wfmt.ByteRate)
 	blockalign := int16ToBytes(wfmt.BlockAlign)
 	bitsPerSample := int16ToBytes(wfmt.BitsPerSample)
+	extraParamSize := int16ToBytes(wfmt.ExtraParamSize)
 
 	b = append(b, wfmt.Subchunk1ID...)
 	b = append(b, subchunksize...)
@@ -161,6 +162,10 @@ func fmtToBytes(wfmt WaveFmt) []byte {
 	b = append(b, br...)
 	b = append(b, blockalign...)
 	b = append(b, bitsPerSample...)
+
+	// extra params if present
+	b = append(b, extraParamSize...)
+	b = append(b, wfmt.ExtraParams...)
 
 	return b
 }
