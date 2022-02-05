@@ -8,7 +8,7 @@ import (
 // Does not modify the input signal
 func Lowpass(fs []float64, freq, delay, sr float64) []float64 {
 	output := make([]float64, len(fs))
-	copy(fs, output)
+	copy(output, fs)
 
 	b := 2. - math.Cos(tau*freq/sr)
 	coef := math.Sqrt(b*b-1.) - b
@@ -25,7 +25,7 @@ func Lowpass(fs []float64, freq, delay, sr float64) []float64 {
 // Does not modify the input signal
 func Highpass(fs []float64, freq, delay, sr float64) []float64 {
 	output := make([]float64, len(fs))
-	copy(fs, output)
+	copy(output, fs)
 
 	b := 2. - math.Cos(tau*freq/sr)
 	coef := b - math.Sqrt(b*b-1.)
