@@ -10,12 +10,12 @@ func Lowpass(fs []float64, freq, delay, sr float64) []float64 {
 	output := make([]float64, len(fs))
 	copy(output, fs)
 
-	b := 2. - math.Cos(tau*freq/sr)
-	coef := math.Sqrt(b*b-1.) - b
+	costh := 2. - math.Cos((tau*freq)/sr)
+	coef := math.Sqrt(costh*costh-1.) - costh
 
 	for i, a := range output {
 		output[i] = a*(1+coef) - delay*coef
-		delay = a
+		delay = output[i]
 	}
 
 	return output
@@ -32,7 +32,7 @@ func Highpass(fs []float64, freq, delay, sr float64) []float64 {
 
 	for i, a := range output {
 		output[i] = a*(1.-coef) - delay*coef
-		delay = a
+		delay = output[i]
 	}
 
 	return output
