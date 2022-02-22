@@ -22,6 +22,7 @@ var (
 	// intsToBytesFm to map X-bit int to byte functions
 	intsToBytesFm = map[int]intsToBytesFunc{
 		16: int16ToBytes,
+		24: int24ToBytes,
 		32: int32ToBytes,
 	}
 )
@@ -68,6 +69,14 @@ func int16ToBytes(i int) []byte {
 	b := make([]byte, 2)
 	in := uint16(i)
 	binary.LittleEndian.PutUint16(b, in)
+	return b
+}
+
+func int24ToBytes(i int) []byte {
+	b := make([]byte, 3)
+	b[0] = byte(i & 0xff)
+	b[1] = byte((i >> 8) & 0xff)
+	b[2] = byte((i >> 16) & 0xff)
 	return b
 }
 
@@ -143,6 +152,7 @@ func fmtToBytes(wfmt WaveFmt) []byte {
 	br := int32ToBytes(wfmt.ByteRate)
 	blockalign := int16ToBytes(wfmt.BlockAlign)
 	bitsPerSample := int16ToBytes(wfmt.BitsPerSample)
+	extraParamSize := int16ToBytes(wfmt.ExtraParamSize)
 
 	b = append(b, wfmt.Subchunk1ID...)
 	b = append(b, subchunksize...)
@@ -152,6 +162,10 @@ func fmtToBytes(wfmt WaveFmt) []byte {
 	b = append(b, br...)
 	b = append(b, blockalign...)
 	b = append(b, bitsPerSample...)
+
+	// extra params if present
+	b = append(b, extraParamSize...)
+	b = append(b, wfmt.ExtraParams...)
 
 	return b
 }

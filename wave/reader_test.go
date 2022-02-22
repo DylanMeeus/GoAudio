@@ -1,6 +1,7 @@
 package wave
 
 import (
+	"bytes"
 	"runtime/debug"
 	"testing"
 )
@@ -95,7 +96,7 @@ func TestScaleFrames(t *testing.T) {
 func TestJunkChunkFile(t *testing.T) {
 	defer func() {
 		if r := recover(); r != nil {
-			t.Fatalf("Should not have panic'd reading JUNK files\n%v", string(debug.Stack()))
+			t.Fatalf("Should not have panic'd reading JUNK files\n%v\n%v", string(debug.Stack()), r)
 		}
 	}()
 
@@ -112,5 +113,13 @@ func TestJunkChunkFile(t *testing.T) {
 
 	if wav.NumChannels != 2 {
 		t.Fatalf("Expected 2 channels, got: %v", wav.NumChannels)
+	}
+
+	if !bytes.Equal(wav.WaveFmt.Subchunk1ID, []byte{0x66, 0x6d, 0x74, 0x20}) {
+		t.Fatalf("Expected Subchunk1ID to contain 'fmt'")
+	}
+
+	if !bytes.Equal(wav.WaveData.Subchunk2ID, []byte{0x64, 0x61, 0x74, 0x61}) {
+		t.Fatalf("Expected Subchunk2ID to contain 'data', but got %x", wav.WaveData.Subchunk2ID)
 	}
 }
