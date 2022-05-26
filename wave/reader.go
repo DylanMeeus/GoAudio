@@ -19,6 +19,7 @@ type (
 var (
 	// figure out which 'to int' function to use..
 	byteSizeToIntFunc = map[int]bytesToIntF{
+		8:  bits8ToInt,
 		16: bits16ToInt,
 		24: bits24ToInt,
 		32: bits32ToInt,
@@ -79,23 +80,33 @@ func ReadWaveFromReader(reader io.Reader) (Wave, error) {
 // for our wave format we expect double precision floats
 func bitsToFloat(b []byte) float64 {
 	var bits uint64
+	var float float64
 	switch len(b) {
 	case 2:
 		bits = uint64(binary.LittleEndian.Uint16(b))
+		float = math.Float64frombits(bits) // float16??
 	case 4:
 		bits = uint64(binary.LittleEndian.Uint32(b))
+		float = float64(math.Float32frombits(uint32(bits)))
 	case 8:
 		bits = binary.LittleEndian.Uint64(b)
+		float = math.Float64frombits(bits)
 	default:
 		panic("Can't parse to float..")
 	}
-	float := math.Float64frombits(bits)
 	return float
+}
+
+func bits8ToInt(b []byte) int {
+	if len(b) != 1 {
+		panic("Expected size 1!")
+	}
+	return int(b[0]) - 128 // uint8 to int8
 }
 
 func bits16ToInt(b []byte) int {
 	if len(b) != 2 {
-		panic("Expected size 4!")
+		panic("Expected size 2!")
 	}
 	var payload int16
 	buf := bytes.NewReader(b)
@@ -141,7 +152,18 @@ func bits32ToInt(b []byte) int {
 func readData(b []byte, wfmt WaveFmt) WaveData {
 	wd := WaveData{}
 
-	start := 36 + wfmt.ExtraParamSize
+	start := 20 + wfmt.Subchunk1Size
+
+	// skip additional subchunks such as "fact"
+	for {
+		subchunkID := b[start : start+4]
+		if string(subchunkID) == "data" {
+			break
+		}
+		subsize := bits32ToInt(b[start+4 : start+8])
+		start += 8 + subsize
+	}
+
 	subchunk2ID := b[start : start+4]
 	wd.Subchunk2ID = subchunk2ID
 
@@ -161,11 +183,22 @@ func parseRawData(wfmt WaveFmt, rawdata []byte) []Frame {
 
 	frames := []Frame{}
 	// read the chunks
-	for i := 0; i < len(rawdata); i += bytesSampleSize {
-		rawFrame := rawdata[i : i+bytesSampleSize]
-		unscaledFrame := byteSizeToIntFunc[wfmt.BitsPerSample](rawFrame)
-		scaled := scaleFrame(unscaledFrame, wfmt.BitsPerSample)
-		frames = append(frames, scaled)
+	switch wfmt.AudioFormat {
+	case 1: // int
+		fallthrough
+	default:
+		for i := 0; i < len(rawdata); i += bytesSampleSize {
+			rawFrame := rawdata[i : i+bytesSampleSize]
+			unscaledFrame := byteSizeToIntFunc[wfmt.BitsPerSample](rawFrame)
+			scaled := scaleFrame(unscaledFrame, wfmt.BitsPerSample)
+			frames = append(frames, scaled)
+		}
+	case 3: // float
+		for i := 0; i < len(rawdata); i += bytesSampleSize {
+			rawFrame := rawdata[i : i+bytesSampleSize]
+			unscaledFrame := byteSizeToFloatFunc[wfmt.BitsPerSample](rawFrame)
+			frames = append(frames, Frame(unscaledFrame))
+		}
 	}
 	return frames
 }
